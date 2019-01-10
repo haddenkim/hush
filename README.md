@@ -98,7 +98,7 @@ The included example scenes are from:
 http://casual-effects.com/data/index.html
 
 ## Demo
-Note: rendering was performed on my 2015 Macbook Pro with a 2.7 GHz Intel i5-5257U (Intel Iris Graphics 6100)
+Note: rendering was performed on my 2015 Macbook Pro with a 2.7 GHz Intel i5-5257U (Intel Iris Graphics 6100) and 16 GB 1867 Mhz RAM 
 
 ### Cornell Box
 
