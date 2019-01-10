@@ -56,7 +56,7 @@ Initially written for the final project of an undergraduate computer graphics co
 
 ## Compiling
 Dependencies
-- GLAD
+- GLAD - I'm not sure how GLAD works. You may need to generate GLAD files and replace the included files in /lib/glad
 - GLM
 - GLFW3
 - Threading Building Blocks (TBB)
