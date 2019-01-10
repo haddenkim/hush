@@ -26,3 +26,7 @@ I tested compiling with GCU 8.2 and Clang 9.1 on MacOS, so I hope this compiles 
 
 ## Usage
 ./hush {file.obj}
+
+## Example Scenes
+The included example scenes are from:
+http://casual-effects.com/data/index.html
