@@ -25,7 +25,10 @@ Untested.
 I tested compiling with GCU 8.2 and Clang 9.1 on MacOS, so I hope this compiles cross-platform.
 
 ## Usage
-./hush {file.obj}
+Need to set the working directory to the source code's root folder, so that the shader files can be found.
+```
+hush {file.obj}
+```
 
 ## Example Scenes
 The included example scenes are from:
