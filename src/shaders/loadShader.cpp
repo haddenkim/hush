@@ -24,28 +24,6 @@ void LoadShader::checkErrors(GLuint shaderId, GLenum parameter)
 	}
 }
 
-const char* LoadShader::loadShader(const char* filepath)
-{
-	std::string shaderCode;
-
-	std::ifstream shaderFile;
-	shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	try {
-		shaderFile.open(filepath);
-		std::stringstream shaderStream;
-		shaderStream << shaderFile.rdbuf();
-		shaderFile.close();
-		shaderCode = shaderStream.str();
-
-	} catch (std::ifstream::failure err) {
-		printf("LoadShader error: %s\n", err.what());
-		exit(1);
-	}
-
-	return shaderCode.c_str();
-}
-
 GLuint LoadShader::createGlProgram(const char* vertexFilepath, const char* fragmentFilepath)
 {
 	std::string vertexCode;
