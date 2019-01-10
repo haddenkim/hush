@@ -39,7 +39,7 @@ const char* LoadShader::loadShader(const char* filepath)
 		shaderCode = shaderStream.str();
 
 	} catch (std::ifstream::failure err) {
-		printf("LoadShader error: %s\n", err);
+		printf("LoadShader error: %s\n", err.what());
 		exit(1);
 	}
 

@@ -240,7 +240,9 @@ void GlRenderer::setupMeshTextures()
 
 void GlRenderer::setupGeoFBO()
 {
-	int gBufferCount = 5; // specular, diffuse, position, normal, ambient
+	// specular, diffuse, position, normal, ambient
+	#define gBufferCount 5 // using a macro because clang complained 'variable-sized object may not be initialized'
+	// int gBufferCount = 5; 
 	m_gBufferTex = new GLuint[gBufferCount];
 
 	m_gBufferTex[0] = setupOutputTexture(GL_RGBA); // specular + shininess

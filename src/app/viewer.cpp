@@ -91,7 +91,7 @@ void Viewer::start()
 	// Main loop
 	while (!glfwWindowShouldClose(Window)) {
 		/* timer */
-		auto startTime = std::chrono::high_resolution_clock::now();
+		std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
 
 		// clear screen
 		glClearColor(0.45f, 0.55f, 0.60f, 1.00f); // not black to troubleshoot
@@ -159,7 +159,7 @@ void Viewer::start()
 	glfwTerminate();
 }
 
-float Viewer::timeFrom(std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::nanoseconds> startTime)
+float Viewer::timeFrom(std::chrono::time_point<std::chrono::high_resolution_clock> startTime)
 {
 	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count();
 }

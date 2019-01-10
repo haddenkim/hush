@@ -49,8 +49,8 @@ void Viewer::guiMainMenuScene()
 		ImGui::NewLine();
 		ImGui::Text("Vertices %d", m_scene->m_vertexCount);
 		ImGui::Text("Triangles %d", m_scene->m_triCount);
-		ImGui::Text("Materials %d", m_scene->m_materialList.size() - 1); // -1 to account for the default material
-		ImGui::Text("Textures %d", m_scene->m_textureList.size());
+		ImGui::Text("Materials %lu", m_scene->m_materialList.size() - 1); // -1 to account for the default material
+		ImGui::Text("Textures %lu", m_scene->m_textureList.size());
 
 		ImGui::Separator();
 		ImGui::NewLine();
@@ -58,13 +58,13 @@ void Viewer::guiMainMenuScene()
 		ImGui::Text("Enabled items");
 
 		/* Mesh */
-		if (ImGui::TreeNode("Mesh", "Mesh %i", m_scene->m_enabledMeshList.size())) {
+		if (ImGui::TreeNode("Mesh", "Mesh %lu", m_scene->m_enabledMeshList.size())) {
 
 			for (Mesh* mesh : m_scene->m_enabledMeshList) {
 
 				if (ImGui::TreeNode(mesh->m_name.c_str())) {
-					ImGui::Text("Vertices %d", mesh->m_vertices.size());
-					ImGui::Text("Triangles %d", mesh->m_faces.size());
+					ImGui::Text("Vertices %lu", mesh->m_vertices.size());
+					ImGui::Text("Triangles %lu", mesh->m_faces.size());
 
 					if (ImGui::TreeNode("Material")) {
 						Material* material = mesh->m_material;
@@ -94,7 +94,7 @@ void Viewer::guiMainMenuScene()
 		}
 
 		/* Lights */
-		if (ImGui::TreeNode("Lights", "Lights %i", m_scene->m_enabledLightList.size())) {
+		if (ImGui::TreeNode("Lights", "Lights %lu", m_scene->m_enabledLightList.size())) {
 
 			for (Light* light : m_scene->m_enabledLightList) {
 				if (ImGui::TreeNode(light->m_name.c_str())) {
@@ -248,7 +248,7 @@ void Viewer::guiMainMenuFramebuffer()
 					m_activeRenderer->m_displayFramebuffer = n;
 
 			} else {
-				ImGui::TextDisabled(m_activeRenderer->m_framebufferNames[n].c_str());
+				ImGui::TextDisabled("%s",m_activeRenderer->m_framebufferNames[n].c_str());
 			}
 		}
 
@@ -286,7 +286,7 @@ void Viewer::guiWindowEditScene()
 	ImGui::Begin("Edit Scene", &showEditSceneWindow);
 
 	/* Mesh */
-	if (ImGui::TreeNode("Mesh", "Mesh %i", m_scene->m_meshList.size())) {
+	if (ImGui::TreeNode("Mesh", "Mesh %lu", m_scene->m_meshList.size())) {
 
 		ImGui::AlignTextToFramePadding();
 		if (ImGui::Button("Show All")) {

@@ -106,7 +106,6 @@ bool Obj2scene::LoadScene(Scene* scene, const char* filename)
 		const tinyobj::mesh_t& tinyMesh = shape.mesh;
 
 		// create unique set of mesh's material(s)
-		tinyMesh.material_ids;
 		std::set<int> materialIds;
 		for (int matId : tinyMesh.material_ids) {
 			materialIds.insert(matId);

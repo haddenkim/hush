@@ -58,5 +58,5 @@ private:
 
 	// helpers
 	void init();
-	float timeFrom(std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::nanoseconds> startTime);
+	float timeFrom(std::chrono::time_point<std::chrono::high_resolution_clock> startTime);
 };
