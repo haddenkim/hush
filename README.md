@@ -30,6 +30,11 @@ From the binary directory,
 ./hush {file.obj}
 ```
 
+For example, to run the Cornell Box sample scene
+```
+./hush ../../scenes/CornellBox/CornellBox-Original.obj
+```
+
 ## Example Scenes
 The included example scenes are from:
 http://casual-effects.com/data/index.html
