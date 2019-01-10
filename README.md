@@ -95,4 +95,5 @@ Cornell Box
 ![](images/box_atrous.png)
 
 1 spp, 1 direct light sample, 1 depth, Atrous denoising
+
 9-10 FPS on my 2015 Macbook Pro with 2.7 GHz Intel Core i5 and Intel Iris Graphics 6100
