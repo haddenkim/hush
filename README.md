@@ -1,3 +1,4 @@
 # hush
 
-test change
+## Usage
+./hush {file.obj}
