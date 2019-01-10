@@ -90,19 +90,14 @@ The included example scenes are from:
 http://casual-effects.com/data/index.html
 
 ## Demo
-Cornell Box
+Note: rendering was performed on my 2015 Macbook Pro with 2.7 GHz Intel Core i5 and Intel Iris Graphics 6100
 
-1 spp, 1 depth, 1 direct light sample per hit, Atrous denoising
+### Cornell Box
 
-9-10 FPS on my 2015 Macbook Pro with 2.7 GHz Intel Core i5 and Intel Iris Graphics 6100
+Path Tracer (1 spp, 1 depth, 1 direct light sample per hit) with Atrous denoising. 9-10 FPS
 
 ![](images/box_atrous.png)
 
-
-Reference
-
-[Tungsten Renderer](https://github.com/tunabrain/tungsten) 1024 spp, 10 depth 
-
-1h 30m 51s on my 2015 Macbook Pro
+[Tungsten Renderer](https://github.com/tunabrain/tungsten) Reference (1024 spp, 10 depth). 1h 30m 51s
 
 ![](images/box_reference.png)
