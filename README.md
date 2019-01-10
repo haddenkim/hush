@@ -12,10 +12,12 @@ Dependencies
 - Embree
 
 ### MacOS
-        mkdir build
-        cd build
-	cmake -DCMAKE_BUILD_TYPE=Release ..
-	make
+```
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+```
 
 ### Windows & Linux
 Untested. 
