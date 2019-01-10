@@ -43,6 +43,9 @@ Initially written for the final project of an undergraduate computer graphics co
   * [ ] Variable rendering resolution (currently locked 512x512)
   * [ ] Pipeline / Shader Graph
 
+* Other
+  * [ ] Benchmarking (some sort of image quality metric. maybe compare to a reference image)
+  * [ ] Asynchronous rendering (continuously render framebuffer and not block GUI)
 
 ## Compiling
 Dependencies
