@@ -14,8 +14,8 @@ Dependencies
 ### MacOS
         mkdir build
         cd build
-		cmake -DCMAKE_BUILD_TYPE=Release ..
-		make
+	cmake -DCMAKE_BUILD_TYPE=Release ..
+	make
 
 ### Windows & Linux
 Untested. 
