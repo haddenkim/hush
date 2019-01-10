@@ -71,7 +71,7 @@ make
 ### Windows & Linux
 Untested. 
 
-I tested compiling with GCU 8.2 and Clang 9.1 on MacOS, so I hope this runs on Linux, but I have little hope for Windows.
+I tested compiling with GCU 8.2 and Clang 9.1 on MacOS, so I hope this runs on Linux, but I no idea for Windows.
 
 ## Usage
 From the binary directory,
