@@ -92,16 +92,17 @@ http://casual-effects.com/data/index.html
 ## Demo
 Cornell Box
 
-![](images/box_atrous.png)
-
-1 spp, 1 direct light sample, 1 depth, Atrous denoising
+1 spp, 1 depth, 1 direct light sample per hit, Atrous denoising
 
 9-10 FPS on my 2015 Macbook Pro with 2.7 GHz Intel Core i5 and Intel Iris Graphics 6100
 
+![](images/box_atrous.png)
+
 
 Reference
-![](images/box_reference.png)
 
 [Tungsten Renderer](https://github.com/tunabrain/tungsten) 1024 spp, 10 depth 
 
 1h 30m 51s on my 2015 Macbook Pro
+
+![](images/box_reference.png)
