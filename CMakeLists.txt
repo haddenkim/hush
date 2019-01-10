@@ -9,19 +9,37 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# add source files
-file(GLOB_RECURSE SOURCES 
-	"src/*.cpp"
-	"src/*.vs"
-	"src/*.fs")
 
 # program executable
 add_executable(${PROJECT_NAME} "src/main.cpp")
 
 # source lib
+file(GLOB_RECURSE SOURCES 
+	"src/*.cpp")
 add_library(hush_core STATIC ${SOURCES})
 target_include_directories(hush_core PUBLIC src)
 target_link_libraries(${PROJECT_NAME} hush_core)
+
+# message(STATUS "foreach srcFile.............")
+# foreach(srcFile ${SOURCES})
+# 	message(STATUS "file : ${srcFile}")
+
+# endforeach(srcFile ${SOURCES})
+
+
+# shader files
+set(SHADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders")
+file(GLOB_RECURSE SHADERS RELATIVE ${SHADER_DIR}
+	"src/*.vs"
+	"src/*.fs")
+foreach(shaderFile ${SHADERS})
+	configure_file(	${SHADER_DIR}/${shaderFile} 
+					${CMAKE_BINARY_DIR}/shaders/${shaderFile} 
+					COPYONLY
+	)
+	
+endforeach(shaderFile ${SHADERS})
+
 
 ## libraries
 # GLM
@@ -76,10 +94,3 @@ target_link_libraries(hush_core tbb)
 find_package(embree 3.0 REQUIRED)
 INCLUDE_DIRECTORIES(${EMBREE_INCLUDE_DIRS})
 TARGET_LINK_LIBRARIES(hush_core ${EMBREE_LIBRARIES})
-
-# Embree "common"
-# SET(TASKING_TBB      ON )
-# ADD_DEFINITIONS(-DTASKING_TBB)
-# LIST(APPEND ISPC_DEFINITIONS -DTASKING_TBB)
-# add_subdirectory(lib/embree/common)
-# include_directories(lib/embree/common)

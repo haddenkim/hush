@@ -135,14 +135,14 @@ void GlRenderer::renderPostProcess()
 void GlRenderer::setupShader()
 {
 	/* geometry pass */
-	m_geometryPass = LoadShader::createGlProgram("src/shaders/rasterGBuffer.vs",
-												 "src/shaders/rasterGBuffer.fs");
+	m_geometryPass = LoadShader::createGlProgram("rasterGBuffer.vs",
+												 "rasterGBuffer.fs");
 	// uniforms
 	glUniform1i(glGetUniformLocation(m_geometryPass, "material.texDiffuse"), 0); // diffuse texture
 
 	/* lighting pass */
-	m_lightingPass = LoadShader::createGlProgram("src/shaders/drawTexture.vs",
-												 "src/shaders/rasterLight.fs");
+	m_lightingPass = LoadShader::createGlProgram("drawTexture.vs",
+												 "rasterLight.fs");
 	// uniforms
 	glUseProgram(m_lightingPass);
 	glUniform1i(glGetUniformLocation(m_lightingPass, "gSpecular"), 0);
@@ -151,8 +151,8 @@ void GlRenderer::setupShader()
 	glUniform1i(glGetUniformLocation(m_lightingPass, "gNormal"), 3);
 
 	/* ambient pass */
-	m_ambientPass = LoadShader::createGlProgram("src/shaders/drawTexture.vs",
-												"src/shaders/rasterAmbient.fs");
+	m_ambientPass = LoadShader::createGlProgram("drawTexture.vs",
+												"rasterAmbient.fs");
 	glUseProgram(m_ambientPass);
 	glUniform1i(glGetUniformLocation(m_ambientPass, "gAmbient"), 0);
 

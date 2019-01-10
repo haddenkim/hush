@@ -58,14 +58,14 @@ void Renderer::renderFramebuffer()
 void Renderer::setupShader()
 {
 	/* draw selected texture */
-	m_displayTexPass = LoadShader::createGlProgram("src/shaders/drawTexture.vs",
-												   "src/shaders/drawTexture.fs");
+	m_displayTexPass = LoadShader::createGlProgram("drawTexture.vs",
+												   "drawTexture.fs");
 	glUseProgram(m_displayTexPass);
 	glUniform1i(glGetUniformLocation(m_displayTexPass, "displayTex"), 0);
 
 	/* draw texture with tone map */
-	m_tonemapPass = LoadShader::createGlProgram("src/shaders/drawTexture.vs",
-												"src/shaders/drawTextureTonemap.fs");
+	m_tonemapPass = LoadShader::createGlProgram("drawTexture.vs",
+												"drawTextureTonemap.fs");
 	glUseProgram(m_tonemapPass);
 	glUniform1i(glGetUniformLocation(m_tonemapPass, "displayTex"), 0);
 

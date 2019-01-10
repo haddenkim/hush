@@ -24,7 +24,7 @@ void LoadShader::checkErrors(GLuint shaderId, GLenum parameter)
 	}
 }
 
-GLuint LoadShader::createGlProgram(const char* vertexFilepath, const char* fragmentFilepath)
+GLuint LoadShader::createGlProgram(const char* vertexFilename, const char* fragmentFilename)
 {
 	std::string vertexCode;
 	std::string fragmentCode;
@@ -33,6 +33,13 @@ GLuint LoadShader::createGlProgram(const char* vertexFilepath, const char* fragm
 	// ensure ifstream objects can throw exceptions:
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+
+	char shaderDirectory[] = "../shaders/";
+	// src/shaders/
+	// "../shaders/"
+	std::string vertexFilepath = std::string(shaderDirectory).append(vertexFilename);
+	std::string fragmentFilepath = std::string(shaderDirectory).append(fragmentFilename);
 
 	try {
 		// open files

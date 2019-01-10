@@ -101,8 +101,8 @@ void AtrousDenoiser::render()
 void AtrousDenoiser::setupShader()
 {
 
-	m_atrousPass = LoadShader::createGlProgram("src/shaders/drawTexture.vs",
-											   "src/shaders/denoiseAtrous.fs");
+	m_atrousPass = LoadShader::createGlProgram("drawTexture.vs",
+											   "denoiseAtrous.fs");
 
 	glUseProgram(m_atrousPass);
 
@@ -111,8 +111,8 @@ void AtrousDenoiser::setupShader()
 	glUniform1i(glGetUniformLocation(m_atrousPass, "gNormal"), 2);
 
 	//
-	m_diffusePass = LoadShader::createGlProgram("src/shaders/drawTexture.vs",
-												"src/shaders/denoiseAtrousDiffuse.fs");
+	m_diffusePass = LoadShader::createGlProgram("drawTexture.vs",
+												"denoiseAtrousDiffuse.fs");
 	glUseProgram(m_diffusePass);
 
 	glUniform1i(glGetUniformLocation(m_diffusePass, "dColor"), 0);
