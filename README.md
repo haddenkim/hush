@@ -76,12 +76,21 @@ For example, to run the Cornell Box sample scene
 ./hush ../../scenes/CornellBox/CornellBox-Original.obj
 ```
 
+If the scene has no emissive geometries (or if you want additional light sources), activate lights through the GUI
+```
+Scene -> Edit Scene -> Lights -> Additional Lights
+```
+
+By default, Hush starts with simple OpenGL renderer to allow you to performantly setup proper camera position and lighting. To switch to Path Tracing, click F2.
+
+Additional controls and settings can be found in the GUI.
+
 ## Example Scenes
 The included example scenes are from:
 http://casual-effects.com/data/index.html
 
 ## Demo
-Cornell Box
 ![](images/box_atrous.png)
-1 spp, 1 direct light sample, 1 depth
+Cornell Box
+1 spp, 1 direct light sample, 1 depth, Atrous denoising
 9-10 FPS on my 2015 Macbook Pro with 2.7 GHz Intel Core i5 and Intel Iris Graphics 6100
