@@ -97,3 +97,11 @@ Cornell Box
 1 spp, 1 direct light sample, 1 depth, Atrous denoising
 
 9-10 FPS on my 2015 Macbook Pro with 2.7 GHz Intel Core i5 and Intel Iris Graphics 6100
+
+
+Reference
+![](images/box_reference.png)
+
+[Tungsten Renderer](https://github.com/tunabrain/tungsten) 1024 spp, 10 depth 
+
+1h 30m 51s on my 2015 Macbook Pro
