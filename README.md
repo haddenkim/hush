@@ -1,13 +1,13 @@
 # hush
 Hush is an interactive path tracer renderer with denoising. 
 
-Hush renders static scenes with an interactive camera. Hush includes a simple GUI to change settings and strategies for rendering and denoising. 
+Hush renders static scenes with an interactive camera. Hush includes a simple GUI to change strategies and settings for rendering and denoising. 
 
 Initially written for the final project of an undergraduate computer graphics course, Hush is a project to guide my self-education in rendering. 
 
 ## TODO / Features
 * Rendering Strategies
-  * [x] Rasterization with OpenGL (Bare-bones: no shadows, only point lights, phong shading)
+  * [x] Rasterization with OpenGL (Bare-bones deferred shading: no shadows, only point lights, phong shading)
   * [x] CPU Path Tracing (Backwards, Monte-Carlo, Multiple Importance Sampling on Light and BSDF)
   * [ ] GPU Path Tracing
   
@@ -15,6 +15,13 @@ Initially written for the final project of an undergraduate computer graphics co
   * [x] [Edge-Avoiding A-Trous Wavelet Transform](https://jo.dreggn.org/home/2010_atrous.pdf)
   * [ ] [Mara, McGuire, Bitterli, Jarosz](https://cs.dartmouth.edu/wjarosz/publications/mara17towards.html)
   * [ ] [Spatiotemporal Variance-Guided Filtering](https://cg.ivd.kit.edu/svgf.php)
+  
+* Sampling Strategies
+  * [x] std library
+  * [ ] Proper uniform sampler
+  * [ ] Stratefied
+  * [ ] Halton
+  * [ ] Sobol
   
 * Lights
   * [x] Point
