@@ -1,7 +1,9 @@
 # hush
 Hush is an interactive path tracer renderer with denoising. It renders static scenes with an interactive camera. 
 
-Hush is a project to learn and implement path tracing and denoising concepts.
+Hush follows the path tracing theory from [PBRT](http://www.pbr-book.org/) and denoising theory from various research papers (linked below).
+
+I am building this project to learn and implement path tracing and denoising concepts.
 
 ## TODO / Features
 * Rendering Strategies
