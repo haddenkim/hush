@@ -88,23 +88,6 @@ void Scene::updateActiveMeshes()
 	}
 }
 
-void Scene::disableLight(uint id)
-{
-	assert(id < m_lightList.size());
-
-	m_lightList[id]->m_isEnabled = false;
-	updateActiveLights();
-}
-
-void Scene::enableLight(uint id)
-{
-	assert(id < m_lightList.size());
-
-	// enable light for openGL and GUI
-	m_lightList[id]->m_isEnabled = true;
-	updateActiveLights();
-}
-
 void Scene::updateActiveLights()
 {
 	m_enabledLightList.clear();

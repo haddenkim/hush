@@ -1,13 +1,15 @@
 #pragma once
 
 #include "common.h"
+#include "gui/iGuiEditable.h"
+#include "gui/iGuiReadable.h"
 #include <string>
 #include <vector>
 
 struct Material;
 class Light;
 
-struct Mesh {
+struct Mesh : public IGuiReadable, IGuiEditable {
 
 	std::string m_name;
 
@@ -20,6 +22,8 @@ struct Mesh {
 	Light* m_light;
 
 	// UI
+	void guiRead();
+	bool guiEdit();
 	bool m_isEnabled = true;
 
 	// convienences

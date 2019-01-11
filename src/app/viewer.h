@@ -48,7 +48,6 @@ private:
 	void guiMainMenuRenderer();
 	void guiMainMenuFramebuffer();
 	void guiMainMenuStats();
-	void guiWindowEditScene();
 
 	void handleKeyPress();
 

@@ -7,4 +7,8 @@ public:
 	LightSample sampleLi(const Point3f surfacePosition, Sampler& sampler) const override;
 
 	Spectrum m_intensity;
+
+	// GUI
+	void guiRead();
+	bool guiEdit();
 };

@@ -6,8 +6,8 @@
 #include "viewer.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "app/gui/imgui_impl_glfw.h"
-#include "app/gui/imgui_impl_opengl3.h"
+#include "gui/imgui/imgui_impl_glfw.h"
+#include "gui/imgui/imgui_impl_opengl3.h"
 
 #include "renderer/glRenderer.h"
 #include "renderer/ptRenderer.h"

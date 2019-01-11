@@ -1,12 +1,14 @@
 #pragma once
 
 #include "common.h"
+#include "gui/iGuiEditable.h"
+#include "gui/iGuiReadable.h"
 #include <string>
 
 class LightSample;
 class Sampler;
 
-class Light {
+class Light : public IGuiReadable, IGuiEditable {
 public:
 	Light(const std::string name, const Vec3f position, const Spectrum power);
 	virtual ~Light() {};
@@ -20,6 +22,8 @@ public:
 	bool m_isDelta;
 
 	// for GL and GUI
+	virtual void guiRead() = 0;
+	virtual bool guiEdit() = 0;
 	const std::string m_name;
 	const Vec3f m_position;
 	const Spectrum m_power;

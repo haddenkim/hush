@@ -2,19 +2,23 @@
 
 #include "common.h"
 #include <string>
+#include "gui/iGuiReadable.h"
 
 class Sampler;
 struct MaterialSample;
 struct Texture;
 struct SurfaceInteraction;
 
-struct Material {
+struct Material: public IGuiReadable {
 
 	Spectrum evaluate(const SurfaceInteraction& surfaceInteraction) const;
 	float pdf(const SurfaceInteraction& surfaceInteraction) const;
 	MaterialSample sample_f(SurfaceInteraction& surfaceInteraction, Sampler& sampler) const;
 
 	Spectrum getDiffuse(const Point2f& texcoord) const;
+
+	// UI
+	void guiRead();
 
 	// data
 	std::string m_name;

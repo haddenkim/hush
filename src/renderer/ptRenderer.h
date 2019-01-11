@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "denoiser/atrousDenoiser.h"
+#include "gui/iGuiEditable.h"
 #include "renderer.h"
 #include <embree3/rtcore.h>
 #include <glad/glad.h>
@@ -30,7 +31,7 @@ enum DenoiseStrategy : int {
 	ATROUS = 1
 };
 
-class PtRenderer : public Renderer {
+class PtRenderer : public Renderer, IGuiEditable {
 public:
 	PtRenderer(Scene* scene, Camera* camera);
 
@@ -55,6 +56,9 @@ public:
 
 	// opengl
 	GLuint* m_gBufferTex;
+
+	// UI
+	bool guiEdit();
 
 protected:
 	// buffers

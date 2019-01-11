@@ -1,6 +1,8 @@
 #pragma once
 
 #include "common.h"
+#include "gui/iGuiEditable.h"
+#include "gui/iGuiReadable.h"
 #include <embree3/rtcore.h>
 #include <vector>
 
@@ -10,18 +12,18 @@ class Light;
 class MeshLight;
 class Texture;
 
-class Scene {
+class Scene : public IGuiReadable, IGuiEditable {
 public:
 	~Scene();
 
 	// UI
+	void guiRead();
+	bool guiEdit();
 	void disableAllMesh();
 	void enableAllMesh();
 	void disableMesh(uint id, bool updateList = true);
 	void enableMesh(uint id, bool updateList = true);
 	void updateActiveMeshes();
-	void enableLight(uint id);
-	void disableLight(uint id);
 	void updateActiveLights();
 
 	// Spectrum m_backgroundColor; // = glm::vec3(0.53f, 0.81f, 0.92f); // sky blue

@@ -1,11 +1,12 @@
 #pragma once
 
 #include "common.h"
+#include "gui/iGuiEditable.h"
 
 #define MOVE_SPEED 0.2f
 #define ZOOM_SPEED 0.2f
 
-class Camera {
+class Camera : public IGuiEditable {
 public:
 	// clang-format off
 	enum Mode { Orbit = 0, Rotate = 1, Translate = 2};
@@ -40,6 +41,7 @@ public:
 	Vec3f m_upOriginal;
 
 	// UI
+	bool guiEdit();
 	Mode m_mode;
 
 	// derived properties

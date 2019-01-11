@@ -12,4 +12,8 @@ public:
 
 	Mesh* m_mesh;
 	Spectrum m_radiance; // aka Lemit
+
+	// GUI
+	void guiRead();
+	bool guiEdit();
 };

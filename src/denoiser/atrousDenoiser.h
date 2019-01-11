@@ -1,16 +1,18 @@
 #pragma once
 #include "common.h"
+#include "gui/iGuiEditable.h"
 #include <glad/glad.h>
 
 class PtRenderer;
 
-class AtrousDenoiser {
+class AtrousDenoiser : public IGuiEditable {
 public:
 	AtrousDenoiser(PtRenderer* ptRenderer);
 
 	void render();
 
-	// settings
+	// UI settings
+	bool guiEdit();
 	uint m_filterIterations;
 	float m_colorSigma;
 	float m_positionSigma;
