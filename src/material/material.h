@@ -38,6 +38,7 @@ struct Material: public IGuiReadable {
 
 	// CODEHERE - additional textures for specular, transmissive, ambient, etc 
 	Texture* m_diffuseTexture;
+	
 
 	// CODEHERE - load additional obj-mtl properties
 	// real_t dissolve;			// 1 == opaque; 0 == fully transparent
