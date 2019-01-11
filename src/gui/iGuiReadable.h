@@ -4,6 +4,6 @@
 
 class IGuiReadable {
 
-	virtual void guiRead() = 0; 
+	virtual void guiRead() const = 0; 
 
 };

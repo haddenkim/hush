@@ -14,6 +14,6 @@ public:
 	Spectrum m_radiance; // aka Lemit
 
 	// GUI
-	void guiRead();
-	bool guiEdit();
+	void guiRead() const override;
+	bool guiEdit() override;
 };

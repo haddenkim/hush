@@ -18,7 +18,7 @@ struct Material: public IGuiReadable {
 	Spectrum getDiffuse(const Point2f& texcoord) const;
 
 	// UI
-	void guiRead();
+	void guiRead() const override;
 
 	// data
 	std::string m_name;

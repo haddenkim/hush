@@ -2,7 +2,7 @@
 #include "light/pointLight.h"
 #include "scene/mesh.h"
 
-void PointLight::guiRead()
+void PointLight::guiRead() const
 {
 	if (ImGui::TreeNode(m_name.c_str())) {
 		ImGui::Text("intensity %f,%f,%f", m_intensity[0], m_intensity[1], m_intensity[2]);
@@ -25,7 +25,7 @@ bool PointLight::guiEdit()
 	return wasModified;
 }
 
-void MeshLight::guiRead()
+void MeshLight::guiRead() const
 {
 	if (ImGui::TreeNode(m_name.c_str())) {
 		ImGui::Text("radiance %f,%f,%f", m_radiance[0], m_radiance[1], m_radiance[2]);

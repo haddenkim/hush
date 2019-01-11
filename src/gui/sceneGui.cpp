@@ -3,7 +3,7 @@
 #include "scene/mesh.h"
 #include "scene/scene.h"
 
-void Scene::guiRead()
+void Scene::guiRead() const
 {
 	ImGui::Text("Center (%f,%f,%f)", m_center.x, m_center.y, m_center.z);
 	ImGui::Text("Min Bounds (%f,%f,%f)", m_minBounds.x, m_minBounds.y, m_minBounds.z);

@@ -17,8 +17,8 @@ public:
 	~Scene();
 
 	// UI
-	void guiRead();
-	bool guiEdit();
+	void guiRead() const override;
+	bool guiEdit() override;
 	void disableAllMesh();
 	void enableAllMesh();
 	void disableMesh(uint id, bool updateList = true);

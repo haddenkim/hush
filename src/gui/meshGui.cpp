@@ -1,7 +1,7 @@
 #include "material/material.h"
 #include "scene/mesh.h"
 
-void Mesh::guiRead()
+void Mesh::guiRead() const
 {
 	if (ImGui::TreeNode(m_name.c_str())) {
 		ImGui::Text("Center (%f,%f,%f)", m_center.x, m_center.y, m_center.z);

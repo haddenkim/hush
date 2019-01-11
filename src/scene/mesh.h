@@ -22,8 +22,8 @@ struct Mesh : public IGuiReadable, IGuiEditable {
 	Light* m_light;
 
 	// UI
-	void guiRead();
-	bool guiEdit();
+	void guiRead() const override;
+	bool guiEdit() override;
 	bool m_isEnabled = true;
 
 	// convienences

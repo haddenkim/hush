@@ -1,7 +1,7 @@
 #include "material/material.h"
 #include "texture/texture.h"
 
-void Material::guiRead()
+void Material::guiRead() const
 {
 
 	ImGui::Text("name: %s", m_name.c_str());

@@ -9,6 +9,6 @@ public:
 	Spectrum m_intensity;
 
 	// GUI
-	void guiRead();
-	bool guiEdit();
+	void guiRead() const override;
+	bool guiEdit() override;
 };

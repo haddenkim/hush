@@ -22,7 +22,7 @@ public:
 	bool m_isDelta;
 
 	// for GL and GUI
-	virtual void guiRead() = 0;
+	virtual void guiRead() const = 0;
 	virtual bool guiEdit() = 0;
 	const std::string m_name;
 	const Vec3f m_position;

@@ -58,7 +58,7 @@ public:
 	GLuint* m_gBufferTex;
 
 	// UI
-	bool guiEdit();
+	bool guiEdit() override;
 
 protected:
 	// buffers
