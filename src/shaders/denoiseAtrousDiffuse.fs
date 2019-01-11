@@ -1,3 +1,7 @@
+// Implementation of
+// Dammertz 2010
+// Edge-Avoiding À-Trous Wavelet Transform for fast Global Illumination Filtering
+
 #version 330 core
 out vec3 FragColor;
 
