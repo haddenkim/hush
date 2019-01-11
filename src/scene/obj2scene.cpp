@@ -153,9 +153,6 @@ bool Obj2scene::LoadScene(Scene* scene, const char* filename)
 				auto e02 = v2 - v0;
 				sceneMesh->m_surfaceArea += 0.5f * glm::length(cross(e01, e02));
 
-				/* center and min, max bounds */
-				CalculateCenterAndBounds(sceneMesh);
-
 				/* vertex normals */
 				// explicit > smoothing group > face normal
 				Vec3f n0, n1, n2;
@@ -221,6 +218,9 @@ bool Obj2scene::LoadScene(Scene* scene, const char* filename)
 				scene->m_vertexCount += 3;
 				scene->m_triCount++;
 			}
+
+			/* center and min, max bounds */
+			CalculateCenterAndBounds(sceneMesh);
 
 			/* inverse surface area */
 			sceneMesh->m_invSurfaceArea = 1.f / sceneMesh->m_surfaceArea;
