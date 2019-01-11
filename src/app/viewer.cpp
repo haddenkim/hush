@@ -91,13 +91,47 @@ void Viewer::start()
 	// Main loop
 	while (!glfwWindowShouldClose(Window)) {
 		/* timer */
-		std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
+		bool timeThisFrame = false;
+		auto startTime = std::chrono::high_resolution_clock::now();
+		float tracerTime;
+		float postProcessTime;
 
 		// clear screen
 		glClearColor(0.45f, 0.55f, 0.60f, 1.00f); // not black to troubleshoot
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// set viewport to render dimensions, NOT window dimensions
+		glViewport(0, 0, m_activeRenderer->m_width, m_activeRenderer->m_height);
+
+		/* render scene */
+		if (!m_isPaused) {
+			timeThisFrame = true;
+
+			auto startRender3d = std::chrono::high_resolution_clock::now();
+			m_activeRenderer->render3d();
+			tracerTime = timeFrom(startRender3d);
+
+			auto startRenderPP = std::chrono::high_resolution_clock::now();
+			m_activeRenderer->renderPostProcess();
+			postProcessTime = timeFrom(startRenderPP);
+
+			if (m_renderMode == ONE_FRAME) {
+				m_isPaused = true;
+			}
+		}
+
+		/* render selected framebuffer to final window's framebuffer */
+		// collect window size - for resizing and mac retina
+		int viewPortW, viewPortH;
+		glfwGetFramebufferSize(Window, &viewPortW, &viewPortH);
+		int viewPortX = (viewPortW - viewPortH) / 2;
+		glViewport(viewPortX, 0, viewPortH, viewPortH);
+		// render
+		m_activeRenderer->renderFramebuffer();
+
+		/* GUI */
 		// Poll and handle events (inputs, window resize, etc.)
+		auto startGUI = std::chrono::high_resolution_clock::now();
 		glfwPollEvents();
 
 		// Start the Dear ImGui frame
@@ -105,47 +139,23 @@ void Viewer::start()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		/* handle gui input */
+		// process application gui
 		guiMainMenu();
 		handleKeyPress();
 
 		// CODEHERE - remove demo gui
 		ImGui::ShowDemoWindow();
-		m_guiTime = timeFrom(startTime);
-
-		// set viewport to render dimensions, NOT window dimensions
-		glViewport(0, 0, m_activeRenderer->m_width, m_activeRenderer->m_height);
-
-		/* render scene */
-		if (!m_isPaused) {
-
-			auto startRender3d = std::chrono::high_resolution_clock::now();
-			m_activeRenderer->render3d();
-			m_tracerTime = timeFrom(startRender3d);
-
-			auto startRenderPP = std::chrono::high_resolution_clock::now();
-			m_activeRenderer->renderPostProcess();
-			m_postProcessTime = timeFrom(startRenderPP);
-
-			if (m_renderMode == ONE_FRAME) {
-				m_isPaused = true;
-			}
-		}
-
-		/* render to final window's framebuffer */
-		// collect window size - for resizing and mac retina
-		int viewPortW, viewPortH;
-		glfwGetFramebufferSize(Window, &viewPortW, &viewPortH);
-		int viewPortX = (viewPortW - viewPortH) / 2;
-		glViewport(viewPortX, 0, viewPortH, viewPortH);
-
-		m_activeRenderer->renderFramebuffer();
-
-		m_totalTime = timeFrom(startTime);
 
 		/* render gui */
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		if (timeThisFrame) {
+			m_tracerTime = tracerTime;
+			m_postProcessTime = postProcessTime;
+			m_guiTime = timeFrom(startGUI);
+			m_totalTime = timeFrom(startTime);
+		}
 
 		glfwSwapBuffers(Window);
 	}
@@ -161,5 +171,6 @@ void Viewer::start()
 
 float Viewer::timeFrom(std::chrono::time_point<std::chrono::high_resolution_clock> startTime)
 {
-	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count();
+	auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - startTime).count();
+	return (float) microseconds * 0.001f;
 }

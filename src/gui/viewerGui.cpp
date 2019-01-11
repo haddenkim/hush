@@ -46,7 +46,7 @@ void Viewer::guiMainMenuCamera()
 {
 	if (ImGui::BeginMenu("Camera")) {
 		m_camera->guiEdit();
-		
+
 		ImGui::EndMenu();
 	}
 }
@@ -84,7 +84,6 @@ void Viewer::guiMainMenuRenderer()
 		// Path tracer
 		if (m_activeRendererId == 1) {
 			m_ptRenderer->guiEdit();
-
 		}
 
 		ImGui::EndMenu();
@@ -111,10 +110,11 @@ void Viewer::guiMainMenuStats()
 	static bool showStatsWindow = false;
 	if (ImGui::BeginMenu("Stats")) {
 
-		ImGui::Text("GUI time: %.1f ms", m_guiTime);
-		ImGui::Text("Tracer time: %.1f ms", m_tracerTime);
-		ImGui::Text("Post Process time: %.1f ms", m_postProcessTime);
-		ImGui::Text("Total time: %.1f ms", m_totalTime);
+		ImGui::Text("Last Frame");
+		ImGui::Text("\tTracer time: %.1f ms", m_tracerTime);
+		ImGui::Text("\tPost Process time: %.1f ms", m_postProcessTime);
+		ImGui::Text("\tGUI time: %.1f ms", m_guiTime);
+		ImGui::Text("\tTotal time: %.1f ms", m_totalTime);
 
 		ImGui::Separator();
 		ImGui::MenuItem("Show in window", NULL, &showStatsWindow);
@@ -124,10 +124,13 @@ void Viewer::guiMainMenuStats()
 
 	if (showStatsWindow) {
 		ImGui::Begin("Stats", &showStatsWindow, ImGuiWindowFlags_AlwaysAutoResize);
-		ImGui::Text("GUI time: %.1f ms", m_guiTime);
-		ImGui::Text("Tracer time: %.1f ms", m_tracerTime);
-		ImGui::Text("Post Process time: %.1f ms", m_postProcessTime);
-		ImGui::Text("Total time: %.1f ms", m_totalTime);
+
+		ImGui::Text("Last Frame");
+		ImGui::Text("\tTracer time: %.1f ms", m_tracerTime);
+		ImGui::Text("\tPost Process time: %.1f ms", m_postProcessTime);
+		ImGui::Text("\tGUI time: %.1f ms", m_guiTime);
+		ImGui::Text("\tTotal time: %.1f ms", m_totalTime);
+
 		ImGui::End();
 	}
 }
