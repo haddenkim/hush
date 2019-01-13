@@ -29,9 +29,6 @@ SurfaceInteraction::SurfaceInteraction(const RTCRayHit& rayHit, const Mesh& mesh
 	m_light = mesh.m_light;
 
 	m_diffuse = m_material->getDiffuse(m_texCoord);
-}
-
-Spectrum SurfaceInteraction::Le()
-{
-	return Spectrum(0.f);
+	m_specular = m_material->getSpecular(m_texCoord);
+	m_shininess = m_material->getShininess(m_texCoord);
 }

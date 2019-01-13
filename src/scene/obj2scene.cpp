@@ -55,14 +55,14 @@ bool Obj2scene::LoadScene(Scene* scene, const char* filename)
 
 		material->m_name = tinyMat.name;
 
+		// untextured values
 		material->m_ambient = Spectrum(tinyMat.ambient[0], tinyMat.ambient[1], tinyMat.ambient[2]);
 		material->m_diffuse = Spectrum(tinyMat.diffuse[0], tinyMat.diffuse[1], tinyMat.diffuse[2]);
 		material->m_specular = Spectrum(tinyMat.specular[0], tinyMat.specular[1], tinyMat.specular[2]);
-		material->m_transmittance = Spectrum(tinyMat.transmittance[0], tinyMat.transmittance[1], tinyMat.transmittance[2]);
-		material->m_emission = Spectrum(tinyMat.emission[0], tinyMat.emission[1], tinyMat.emission[2]);
-
 		material->m_shininess = tinyMat.shininess;
+		material->m_transmittance = Spectrum(tinyMat.transmittance[0], tinyMat.transmittance[1], tinyMat.transmittance[2]);
 		material->m_refractionIndex = tinyMat.ior;
+		material->m_emission = Spectrum(tinyMat.emission[0], tinyMat.emission[1], tinyMat.emission[2]);
 
 		material->m_isDiffuse = !material->m_diffuse.isBlack();
 		material->m_isSpecular = !material->m_specular.isBlack();
@@ -70,10 +70,16 @@ bool Obj2scene::LoadScene(Scene* scene, const char* filename)
 		material->m_isEmissive = !material->m_emission.isBlack();
 
 		// textures
-		if (tinyMat.diffuse_texname.length() > 0) {
-			material->m_diffuseTexture = CreateTexture(scene, base_dir + tinyMat.diffuse_texname, &textures);
-		}
-		// CODEHERE - other textured material properties (specular, transmissive, bump map)
+		material->m_ambientMap = CreateTexture(scene, base_dir, tinyMat.ambient_texname, &textures);
+		material->m_diffuseMap = CreateTexture(scene, base_dir, tinyMat.diffuse_texname, &textures);
+		material->m_specularMap = CreateTexture(scene, base_dir, tinyMat.specular_texname, &textures);
+		material->m_shininessMap = CreateTexture(scene, base_dir, tinyMat.specular_highlight_texname, &textures);
+
+		// CODEHERE - other textured material properties
+		// bump_texname;				// map_bump, map_Bump, bump
+		// displacement_texname;		// disp
+		// alpha_texname;				// map_d
+		// reflection_texname;			// refl
 
 		scene->m_materialList.push_back(material);
 	}
@@ -304,16 +310,17 @@ void Obj2scene::CalculateCenterAndBounds(Mesh* mesh)
 	mesh->m_center = (mesh->m_minBounds + mesh->m_maxBounds) * 0.5f;
 }
 
-Texture* Obj2scene::CreateTexture(Scene* scene, std::string filename, std::map<const std::string, Texture*>* textures)
+Texture* Obj2scene::CreateTexture(Scene* scene, std::string directory, std::string filename, std::map<const std::string, Texture*>* textures)
 {
-#ifdef _WIN32
-	//
-#else
-	std::replace(filename.begin(), filename.end(), '\\', '/');
-#endif
+	// material property is not textured
+	if (filename.length() == 0) {
+		return nullptr;
+	}
+
+	std::string filepath = directory + filename;
 
 	// find the texture in case it already was created
-	auto search = textures->find(filename);
+	auto search = textures->find(filepath);
 	if (search != textures->end()) {
 		return search->second;
 	} else {
@@ -324,14 +331,18 @@ Texture* Obj2scene::CreateTexture(Scene* scene, std::string filename, std::map<c
 		stbi_set_flip_vertically_on_load(true);
 
 		int w, h, n;
-		unsigned char* image = stbi_load(filename.c_str(), &w, &h, &n, STBI_rgb);
+		unsigned char* image = stbi_load(filepath.c_str(), &w, &h, &n, 0);
+
+		// CODEHERE - determine how to handle 2 channel textures if any
+		assert(n != 2);
 
 		if (!image) {
-			printf("STBI err - filename: %s\n", filename.c_str());
+			printf("STBI err - filepath: %s\n", filepath.c_str());
 		}
 
 		texture->m_width = w;
 		texture->m_height = h;
+		texture->m_numChannels = n;
 		texture->m_data = image;
 
 		// add texture to scene list

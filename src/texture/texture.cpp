@@ -14,13 +14,25 @@ Spectrum Texture::sample(const Point2f& texcoords) const
 
 	uint dataX = unwrappedTexcoords.x * (float)(m_width - 1);
 	uint dataY = unwrappedTexcoords.y * (float)(m_height - 1);
+	uint index = ((dataY * m_width) + dataX) * m_numChannels;
 
-	uint index = ((dataY * m_width) + dataX) * 3;
-	unsigned char r = m_data[index];
-	unsigned char g = m_data[index + 1];
-	unsigned char b = m_data[index + 2];
+	// 1 channel (bump maps)
+	if (m_numChannels == 1) {
+		unsigned char r = m_data[index];
+		float rf = (float)r / 255.f;
+		return Spectrum(rf);
 
-	return Spectrum((float)r / 255.f,
-					(float)g / 255.f,
-					(float)b / 255.f);
+		// 3 (RGB) or 4 (RGBA) channel
+	} else if (m_numChannels == 3 || m_numChannels == 4) {
+		unsigned char r = m_data[index];
+		unsigned char g = m_data[index + 1];
+		unsigned char b = m_data[index + 2];
+
+		return Spectrum((float)r / 255.f,
+						(float)g / 255.f,
+						(float)b / 255.f);
+	} else {
+		assert(!"Unsupported number of Texture channels");
+		return Spectrum(0.f);
+	}
 }

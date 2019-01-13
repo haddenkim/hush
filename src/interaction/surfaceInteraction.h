@@ -13,8 +13,6 @@ struct SurfaceInteraction {
 	SurfaceInteraction(const RTCRayHit& rayHit, const Scene& scene);
 	SurfaceInteraction(const RTCRayHit& rayHit, const Mesh& mesh);
 
-	Spectrum Le();
-
 	Vec3f m_position;	// P
 	Vec3f m_wo;			 // direction out, world space
 	Vec3f m_wi;			 // direction in, world space
@@ -22,7 +20,9 @@ struct SurfaceInteraction {
 	Vec3f m_normalShade; // N_s
 	Vec2f m_texCoord;	// uv
 
-	Spectrum m_diffuse; // diffuse color of material
+	Spectrum m_diffuse; 
+	Spectrum m_specular;
+	float m_shininess;
 
 	Material* m_material;
 	Light* m_light;

@@ -54,7 +54,7 @@ void GlRenderer::render3d()
 		glUniform1f(glGetUniformLocation(m_geometryPass, "material.shininess"), meshMaterial->m_shininess);
 
 		// diffuse texture
-		if (meshMaterial->m_diffuseTexture) {
+		if (meshMaterial->m_diffuseMap) {
 			glUniform1i(glGetUniformLocation(m_geometryPass, "material.hasTexDiffuse"), 1);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, m_texDiffuse[i]);
@@ -97,7 +97,7 @@ void GlRenderer::render3d()
 	for (auto light : m_scene->m_enabledLightList) {
 
 		// treat every light source as point light
-		Spectrum intensity = light->m_power * M_1_PI * 0.25f;
+		Spectrum intensity = light->m_power * ONE_OVER_PI * 0.25f;
 
 		// pass to shader uniform
 		glUniform3fv(glGetUniformLocation(m_lightingPass, "cameraPosition"), 1, &m_camera->m_position[0]);
@@ -224,7 +224,7 @@ void GlRenderer::setupMeshTextures()
 		auto material = m_scene->m_meshList[i]->m_material;
 
 		// diffuse
-		Texture* diffuseTexture = material->m_diffuseTexture;
+		Texture* diffuseTexture = material->m_diffuseMap;
 		if (diffuseTexture) {
 			glBindTexture(GL_TEXTURE_2D, m_texDiffuse[i]);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

@@ -17,5 +17,5 @@ private:
 	static void CalculateCenterAndBounds(Mesh* mesh);
 	static void CreateMeshLight(Scene* scene, Mesh* mesh);
 
-	static Texture* CreateTexture(Scene* scene, std::string filename, std::map<const std::string, Texture*>* textures);
+	static Texture* CreateTexture(Scene* scene, std::string directory, std::string filename, std::map<const std::string, Texture*>* textures);
 };

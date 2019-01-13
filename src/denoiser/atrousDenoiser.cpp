@@ -13,7 +13,7 @@ AtrousDenoiser::AtrousDenoiser(PtRenderer* ptRenderer)
 	m_colorSigma = 1.f;
 	m_positionSigma = 1.f;
 	m_normalSigma = 0.1f;
-	m_useOptionalDiffuse = true;
+	m_useOptionalDiffuse = false;
 }
 
 void AtrousDenoiser::render()
