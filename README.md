@@ -31,7 +31,7 @@ I am building this project to learn and implement path tracing and denoising con
   * [ ] Default lighting for scenes without emissive geometry
 
 * Materials / BSDF models
-  * [x] [Glossy Phong](http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf))
+  * [x] [Glossy Phong](http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf)
   * [ ] Transmissive
   
 * Textures
