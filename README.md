@@ -109,4 +109,6 @@ Path Tracer (1 spp, 1 depth, 1 direct light sample per hit) with Atrous denoisin
 
 ### Cornell Box Mirror
 
+Path Tracer (1 spp, 1 depth, 1 direct light sample per hit) with Atrous denoising. Note: high variance artifacts from specular reflection appear due to such a low spp.
+
 ![](images/boxMirror_atrous.png)
