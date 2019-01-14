@@ -8,8 +8,6 @@
 #include "shaders/loadShader.h"
 #include "texture/texture.h"
 
-#include <fstream>
-
 GlRenderer::GlRenderer(Scene* scene, Camera* camera)
 	: Renderer(scene, camera)
 {
@@ -46,20 +44,21 @@ void GlRenderer::render3d()
 		glBindVertexArray(m_VAOs[i]);
 
 		// material uniforms
-		auto meshMaterial = mesh->m_material;
-		glUniform3fv(glGetUniformLocation(m_geometryPass, "material.diffuse"), 1, &meshMaterial->m_diffuse[0]);
-		glUniform3fv(glGetUniformLocation(m_geometryPass, "material.specular"), 1, &meshMaterial->m_specular[0]);
-		glUniform3fv(glGetUniformLocation(m_geometryPass, "material.ambient"), 1, &meshMaterial->m_ambient[0]);
-		glUniform3fv(glGetUniformLocation(m_geometryPass, "material.emission"), 1, &meshMaterial->m_emission[0]);
-		glUniform1f(glGetUniformLocation(m_geometryPass, "material.shininess"), meshMaterial->m_shininess);
+		GlMaterial material = mesh->m_material->getGL();
+
+		glUniform3fv(glGetUniformLocation(m_geometryPass, "material.diffuse"), 1, &material.m_diffuse[0]);
+		glUniform3fv(glGetUniformLocation(m_geometryPass, "material.specular"), 1, &material.m_specular[0]);
+		glUniform3fv(glGetUniformLocation(m_geometryPass, "material.ambient"), 1, &material.m_ambient[0]);
+		glUniform3fv(glGetUniformLocation(m_geometryPass, "material.emission"), 1, &material.m_emission[0]);
+		glUniform1f(glGetUniformLocation(m_geometryPass, "material.shininess"), material.m_shininess);
 
 		// diffuse texture
-		if (meshMaterial->m_diffuseMap) {
-			glUniform1i(glGetUniformLocation(m_geometryPass, "material.hasTexDiffuse"), 1);
+		if (material.m_diffuseMap) {
+			glUniform1i(glGetUniformLocation(m_geometryPass, "material.hasTexDiffuse"), 1); // true
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, m_texDiffuse[i]);
 		} else {
-			glUniform1i(glGetUniformLocation(m_geometryPass, "material.hasTexDiffuse"), 0);
+			glUniform1i(glGetUniformLocation(m_geometryPass, "material.hasTexDiffuse"), 0); // false
 		}
 
 		glDrawElements(GL_TRIANGLES, m_numMeshFaces[i] * 3, GL_UNSIGNED_INT, 0);
@@ -221,10 +220,10 @@ void GlRenderer::setupMeshTextures()
 
 	// for each mesh
 	for (size_t i = 0; i < m_numMeshes; i++) {
-		auto material = m_scene->m_meshList[i]->m_material;
+		GlMaterial material = m_scene->m_meshList[i]->m_material->getGL();
 
 		// diffuse
-		Texture* diffuseTexture = material->m_diffuseMap;
+		Texture* diffuseTexture = material.m_diffuseMap;
 		if (diffuseTexture) {
 			glBindTexture(GL_TEXTURE_2D, m_texDiffuse[i]);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -240,9 +239,9 @@ void GlRenderer::setupMeshTextures()
 
 void GlRenderer::setupGeoFBO()
 {
-	// specular, diffuse, position, normal, ambient
-	#define gBufferCount 5 // using a macro because clang complained 'variable-sized object may not be initialized'
-	// int gBufferCount = 5; 
+// specular, diffuse, position, normal, ambient
+#define gBufferCount 5 // using a macro because clang complained 'variable-sized object may not be initialized'
+	// int gBufferCount = 5;
 	m_gBufferTex = new GLuint[gBufferCount];
 
 	m_gBufferTex[0] = setupOutputTexture(GL_RGBA); // specular + shininess
