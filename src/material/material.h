@@ -24,6 +24,8 @@ struct GlMaterial {
 
 struct Material : public IGuiReadable {
 
+	virtual ~Material() {};
+
 	virtual Spectrum evaluate(const SurfaceInteraction& surfaceInteraction) const = 0;
 	virtual float pdf(const SurfaceInteraction& surfaceInteraction) const = 0;
 	virtual MaterialSample sample(SurfaceInteraction& surfaceInteraction, Sampler& sampler) const = 0;
