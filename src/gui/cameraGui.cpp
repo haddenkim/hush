@@ -1,5 +1,6 @@
 #include "camera/camera.h"
 #include "gui/imgui/imguiExtensions.h"
+#include "scene/scene.h"
 
 bool Camera::guiEdit()
 {
@@ -9,8 +10,39 @@ bool Camera::guiEdit()
 		reset();
 		wasModified = true;
 	}
+	ImGui::Separator();
+
+	if (ImGui::MenuItem("Anchor at current")) {
+		setBase(m_position, m_center, m_up);
+		wasModified = true;
+	}
+	if (ImGui::MenuItem("Anchor at scene center")) {
+		setBase(m_scene->m_center,
+				m_scene->m_center + Vec3f(0.f, 0.f, 0.1f), // offset a small amount
+				Vec3f(0.f, 1.f, 0.f));
+
+		wasModified = true;
+	}
+	if (ImGui::MenuItem("Anchor at scene +z")) {
+		float distance = (m_scene->m_maxBounds.z - m_scene->m_center.z) * 5.19615f; // ... * length (3,3,3)
+
+		setBase(m_scene->m_center + Vec3f(0.f, 0.f, distance),
+				m_scene->m_center,
+				Vec3f(0.f, 1.f, 0.f));
+
+		wasModified = true;
+	}
+	if (ImGui::MenuItem("Anchor at scene +xyz")) {
+		setBase(m_scene->m_center + (m_scene->m_maxBounds - m_scene->m_center) * 3.0f,
+				m_scene->m_center,
+				Vec3f(0.f, 1.f, 0.f));
+
+		wasModified = true;
+	}
 
 	ImGui::Separator();
+	ImGui::NewLine();
+
 	const char* modes[] = { "Orbit", "Rotate", "Translate" };
 	if (ImGui::Combo("Mode", (int*)&m_mode, modes, IM_ARRAYSIZE(modes))) {
 		wasModified = true;

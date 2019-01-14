@@ -1,24 +1,36 @@
 #include "camera.h"
+#include "scene/scene.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
 #define MAX_ZOOM 100
 #define MIN_ZOOM 0.1
 
-Camera::Camera(int width, int height, Point3f position, Point3f center, Vec3f up, float fovY)
+Camera::Camera(int width, int height, float fovY, Scene* scene)
 	: m_width(width)
 	, m_height(height)
-	, m_position(position)
-	, m_center(center)
-	, m_up(up)
 	, m_fovY(fovY)
-	, m_positionOriginal(position)
-	, m_centerOriginal(center)
-	, m_upOriginal(up)
 	, m_mode(Orbit)
+	, m_scene(scene)
 {
-	m_projection = glm::perspective(fovY, (float)width / (float)height, 0.01f, 100.0f);
-	updateMatrices();
+	m_projection = glm::perspective(fovY, (float)width / (float)height, 0.01f, 1000.0f);
+
+	setBase(m_scene->m_center + (m_scene->m_maxBounds - m_scene->m_center) * 3.0f,
+			m_scene->m_center,
+			Vec3f(0.f, 1.f, 0.f));
+}
+
+Camera::Camera(int width, int height, Point3f position, Point3f center, Vec3f up, float fovY, Scene* scene)
+	: m_width(width)
+	, m_height(height)
+	, m_fovY(fovY)
+	, m_mode(Orbit)
+	, m_scene(scene)
+{
+	// CODEHERE - determine a reasonable zFar
+	m_projection = glm::perspective(fovY, (float)width / (float)height, 0.01f, 1000.0f);
+
+	setBase(position, center, up);
 }
 
 void Camera::reset()
@@ -27,6 +39,15 @@ void Camera::reset()
 	m_center = m_centerOriginal;
 	m_up = m_upOriginal;
 	m_mode = Orbit;
+
+	updateMatrices();
+}
+
+void Camera::setBase(Point3f position, Point3f center, Vec3f up)
+{
+	m_position = m_positionOriginal = position;
+	m_center = m_centerOriginal = center;
+	m_up = m_upOriginal = up;
 
 	updateMatrices();
 }
@@ -72,12 +93,10 @@ void Camera::zoom(bool out, float speed)
 	auto newDis = dis + (out ? speed : -speed);
 
 	// clamp distance
-	if(newDis < MIN_ZOOM)
-	{
+	if (newDis < MIN_ZOOM) {
 		newDis = MIN_ZOOM;
 	}
-	if (newDis > MAX_ZOOM)
-	{
+	if (newDis > MAX_ZOOM) {
 		newDis = MAX_ZOOM;
 	}
 

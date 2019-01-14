@@ -192,7 +192,7 @@ Spectrum PtRenderer::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const uint
 
 		// CODEHERE - allow multiple, GUI variable bounces per ray. attempt to do so without recursion
 		/* indirect lighting */
-		MaterialSample matSample = surfaceInteraction.m_material->sample_f(surfaceInteraction, sampler);
+		MaterialSample matSample = surfaceInteraction.m_material->sample(surfaceInteraction, sampler);
 		if (matSample.m_albedo.isBlack() || matSample.m_pdf == 0.f) {
 			// indirect bounce will not contribute light
 			return L;
@@ -302,7 +302,7 @@ Spectrum PtRenderer::sampleLight(SurfaceInteraction& surfaceInteraction, const L
 Spectrum PtRenderer::sampleBsdf(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
 {
 	// sample the material
-	MaterialSample matSample = surfaceInteraction.m_material->sample_f(surfaceInteraction, sampler);
+	MaterialSample matSample = surfaceInteraction.m_material->sample(surfaceInteraction, sampler);
 	// matSample.m_albedo *= AbsDot(matSample.m_direction, surfaceInteraction.m_normalShade);
 
 	if (matSample.m_pdf == 0.f || matSample.m_albedo.isBlack()) {

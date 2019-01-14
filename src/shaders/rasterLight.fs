@@ -40,5 +40,14 @@ void main()
 	vec3 specularColor = matSpecular * pow(max(dot(reflectDir, camDir), 0.0), matShininess) * lightRadianceAttenuated;
 
 	// phong shading color
-	FragColor = diffuseColor + specularColor;
+	// FragColor = diffuseColor + specularColor;
+
+	// if shininess is 0, could get pow(0,0) = undefined in GLSL
+	if (matShininess == 0) {
+		FragColor = diffuseColor;
+
+	} else {
+		FragColor = diffuseColor + specularColor;
+	}
+
 }

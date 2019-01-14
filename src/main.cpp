@@ -14,17 +14,13 @@ int main(int argc, char** argv)
 	scene.setupAdditionalLights();
 	scene.setupEmb();
 
-	// create camera
-	Point3f camPosition(scene.m_center.x, scene.m_center.y, scene.m_maxBounds.z + 3.0f);
-	Point3f camCenter = scene.m_center;
-
 	// TEMP Sponza camera
 	// Point3f camPosition(-10.f, 5.f, 0.f);
 	// Point3f camCenter(0.f, 5.f, 0.f);
+	// Vec3f camUp(0.f, 1.f, 0.f);
 
-	Vec3f camUp(0.f, 1.f, 0.f);
 	float fovY = 35.f * M_PI / float(180);
-	Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, camPosition, camCenter, camUp, fovY);
+	Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, fovY, &scene);
 
 	// initialize viewer
 	Viewer viewer(WINDOW_WIDTH, WINDOW_HEIGHT, &camera, &scene);

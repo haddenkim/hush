@@ -6,6 +6,8 @@
 #define MOVE_SPEED 0.2f
 #define ZOOM_SPEED 0.2f
 
+class Scene;
+
 class Camera : public IGuiEditable {
 public:
 	// clang-format off
@@ -14,10 +16,13 @@ public:
 	enum Orientation { YawPos, YawNeg, PitchPos, PitchNeg, RollPos, RollNeg};
 	// clang-format on
 
-	Camera(int width, int height, Point3f position, Point3f center, Vec3f up, float fovY);
+	Camera(int width, int height, float fovY, Scene* scene);
+	Camera(int width, int height, Point3f position, Point3f center, Vec3f up, float fovY, Scene* scene);
 
 	// movement
 	void reset();
+	void setBase(Point3f position, Point3f center, Vec3f up);
+
 	void switchMode();
 	void switchMode(Mode mode);
 	void zoom(bool out, float speed = ZOOM_SPEED);
@@ -35,7 +40,7 @@ public:
 	Vec3f m_up;
 	float m_fovY; // radians
 
-	// for resetting
+	// base/anchro for resetting
 	Point3f m_positionOriginal;
 	Point3f m_centerOriginal;
 	Vec3f m_upOriginal;
@@ -43,6 +48,7 @@ public:
 	// UI
 	bool guiEdit();
 	Mode m_mode;
+	Scene* m_scene;
 
 	// derived properties
 	Mat4 m_cameraToWorld;

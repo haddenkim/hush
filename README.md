@@ -31,15 +31,10 @@ I am building this project to learn and implement path tracing and denoising con
   * [ ] Default lighting for scenes without emissive geometry
 
 * Materials / BSDF models
-  * [x] Lambertian Diffuse
-  * [ ] Specular
+  * [x] Lambertian
+  * [x] [Glossy Phong](http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf)
   * [ ] Transmissive
-  * [ ] Glossy / Hybrid - (ex. [PBR Phong](http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf))
-  
-* Textures
-  * [x] Diffuse
-  * [ ] Specular
-  * [ ] Transmissive
+  * [x] Diffuse Textures
   * [ ] Bump Map
   
 * GUI
@@ -102,7 +97,7 @@ http://casual-effects.com/data/index.html
 ## Demo
 Note: rendering was performed on my 2015 Macbook Pro with a 2.7 GHz Intel i5-5257U (Intel Iris Graphics 6100) and 16 GB 1867 Mhz RAM 
 
-### Cornell Box
+### Cornell Box Original
 
 Path Tracer (1 spp, 1 depth, 1 direct light sample per hit) with Atrous denoising. 9-10 FPS
 
@@ -111,3 +106,9 @@ Path Tracer (1 spp, 1 depth, 1 direct light sample per hit) with Atrous denoisin
 [Tungsten Renderer](https://github.com/tunabrain/tungsten) Reference (1024 spp, 10 depth). 1h 30m 51s
 
 ![](images/box_reference.png)
+
+### Cornell Box Mirror
+
+Path Tracer (1 spp, 1 depth, 1 direct light sample per hit) with Atrous denoising. Note: high variance artifacts from specular reflection appear due to such a low spp.
+
+![](images/boxMirror_atrous.png)

@@ -12,7 +12,6 @@ void Scene::guiRead() const
 	ImGui::NewLine();
 	ImGui::Text("Vertices %d", m_vertexCount);
 	ImGui::Text("Triangles %d", m_triCount);
-	ImGui::Text("Materials %lu", m_materialList.size() - 1); // -1 to account for the default material
 	ImGui::Text("Textures %lu", m_textureList.size());
 
 	ImGui::Separator();
@@ -36,6 +35,23 @@ void Scene::guiRead() const
 			light->guiRead();
 		}
 
+		ImGui::TreePop();
+	}
+
+	ImGui::Separator();
+	ImGui::NewLine();
+
+	/* Materials */
+	if (ImGui::TreeNode("Materials", "Materials %lu", m_materialList.size())) {
+
+		for (Material* material : m_materialList) {
+
+			if (ImGui::TreeNode(material->m_name.c_str())) {
+				material->guiRead();
+				
+				ImGui::TreePop();
+			}
+		}
 		ImGui::TreePop();
 	}
 }

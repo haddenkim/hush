@@ -8,6 +8,12 @@
 #include "spectrum/rgbSpectrum.h"
 // #include "sampler/stratifiedSampler.h"
 
+// constants
+const float ONE_OVER_PI = 0.31830988618379069122f;  // 1/PI
+const float ONE_OVER_2PI = 0.15915494309189534561f; // 1/(2PI)
+const float PI = 3.14159265358979323846f;			// PI
+const float TWO_PI = 6.283185307179586232f;			// 2PI
+
 /* scalar types */
 typedef unsigned int uint;
 

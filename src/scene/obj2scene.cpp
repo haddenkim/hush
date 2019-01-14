@@ -8,10 +8,14 @@
 #include <stb_image.h>
 
 #include "light/meshLight.h"
+#include "material/lambertianMaterial.h"
 #include "material/material.h"
+#include "material/phongMaterial.h"
+
 #include "scene/mesh.h"
 #include "scene/scene.h"
 #include "texture/texture.h"
+#include <cassert>
 #include <iostream>
 #include <set>
 
@@ -51,54 +55,20 @@ bool Obj2scene::LoadScene(Scene* scene, const char* filename)
 
 	// create material for each tiny_obj material
 	for (const auto& tinyMat : materials) {
-		Material* material = new Material();
-
-		material->m_name = tinyMat.name;
-
-		material->m_ambient = Spectrum(tinyMat.ambient[0], tinyMat.ambient[1], tinyMat.ambient[2]);
-		material->m_diffuse = Spectrum(tinyMat.diffuse[0], tinyMat.diffuse[1], tinyMat.diffuse[2]);
-		material->m_specular = Spectrum(tinyMat.specular[0], tinyMat.specular[1], tinyMat.specular[2]);
-		material->m_transmittance = Spectrum(tinyMat.transmittance[0], tinyMat.transmittance[1], tinyMat.transmittance[2]);
-		material->m_emission = Spectrum(tinyMat.emission[0], tinyMat.emission[1], tinyMat.emission[2]);
-
-		material->m_shininess = tinyMat.shininess;
-		material->m_refractionIndex = tinyMat.ior;
-
-		material->m_isDiffuse = !material->m_diffuse.isBlack();
-		material->m_isSpecular = !material->m_specular.isBlack();
-		material->m_isTransmissive = !material->m_transmittance.isBlack();
-		material->m_isEmissive = !material->m_emission.isBlack();
-
-		// textures
-		if (tinyMat.diffuse_texname.length() > 0) {
-			material->m_diffuseTexture = CreateTexture(scene, base_dir + tinyMat.diffuse_texname, &textures);
-		}
-		// CODEHERE - other textured material properties (specular, transmissive, bump map)
-
-		scene->m_materialList.push_back(material);
+		CreateMaterial(scene, tinyMat, base_dir, &textures);
 	}
 
 	// create a final default material, in case obj file does not provide any materials
 	auto defMatIndex = scene->m_materialList.size();
-	Material* defaultMaterial = new Material();
+	PhongMaterial* defaultMaterial = new PhongMaterial("default material",
+													   Spectrum(0.5f, 0.5f, 0.5f),
+													   Spectrum(0.3f, 0.3f, 0.3f),
+													   10.f);
 	defaultMaterial->m_ambient = Spectrum(0.5f, 0.5f, 0.5f);
-	defaultMaterial->m_diffuse = Spectrum(0.5f, 0.5f, 0.5f);
-	defaultMaterial->m_specular = Spectrum(0.3f, 0.3f, 0.3f);
-	defaultMaterial->m_shininess = 5.f;
-	defaultMaterial->m_isDiffuse = true;
-	defaultMaterial->m_isSpecular = true;
 	scene->m_materialList.push_back(defaultMaterial);
 
 	/* Mesh , Shapes */
 	for (const tinyobj::shape_t& shape : shapes) {
-
-		/////// DEBUG
-		// for (size_t i = 0; i < shapes.size(); i++) {
-		// 	const tinyobj::shape_t& shape = shapes[i];
-
-		// 	if (i != 1)
-		// 		continue;
-		// 	/////// DEBUG
 
 		const tinyobj::mesh_t& tinyMesh = shape.mesh;
 
@@ -304,16 +274,71 @@ void Obj2scene::CalculateCenterAndBounds(Mesh* mesh)
 	mesh->m_center = (mesh->m_minBounds + mesh->m_maxBounds) * 0.5f;
 }
 
-Texture* Obj2scene::CreateTexture(Scene* scene, std::string filename, std::map<const std::string, Texture*>* textures)
+void Obj2scene::CreateMaterial(Scene* scene, const tinyobj::material_t& tinyMat, std::string directory, std::map<const std::string, Texture*>* textures)
 {
-#ifdef _WIN32
-	//
-#else
-	std::replace(filename.begin(), filename.end(), '\\', '/');
-#endif
+	// determine type of material
+	bool isDiffuse = tinyMat.diffuse[0] != 0.f || tinyMat.diffuse[1] != 0.f || tinyMat.diffuse[2] != 0.f;
+	bool isSpecular = tinyMat.specular[0] != 0.f || tinyMat.specular[1] != 0.f || tinyMat.specular[2] != 0.f;
+	bool isTransmissive = tinyMat.transmittance[0] != 0.f || tinyMat.transmittance[1] != 0.f || tinyMat.transmittance[2] != 0.f;
+	bool isEmissive = tinyMat.emission[0] != 0.f || tinyMat.emission[1] != 0.f || tinyMat.emission[2] != 0.f;
+
+	Material* material;
+
+	if (isDiffuse && !isSpecular) {
+		// Lambertian material
+		Texture* diffuseMap = CreateTexture(scene, directory, tinyMat.diffuse_texname, textures);
+
+		material = new LambertianMaterial(tinyMat.name,
+										  Spectrum(tinyMat.diffuse[0], tinyMat.diffuse[1], tinyMat.diffuse[2]),
+										  diffuseMap);
+
+	} else if (isDiffuse && isSpecular && !isTransmissive) {
+		// Phong material
+		Texture* diffuseMap = CreateTexture(scene, directory, tinyMat.diffuse_texname, textures);
+		Texture* specularMap = CreateTexture(scene, directory, tinyMat.specular_texname, textures);
+		Texture* shininessMap = CreateTexture(scene, directory, tinyMat.specular_highlight_texname, textures);
+
+		material = new PhongMaterial(tinyMat.name,
+									 Spectrum(tinyMat.diffuse[0], tinyMat.diffuse[1], tinyMat.diffuse[2]),
+									 Spectrum(tinyMat.specular[0], tinyMat.specular[1], tinyMat.specular[2]),
+									 tinyMat.shininess,
+									 diffuseMap,
+									 specularMap,
+									 shininessMap);
+	} else {
+		assert(!"Unsupported material. ");
+	}
+
+	// universal values
+	material->m_ambient = Spectrum(tinyMat.ambient[0], tinyMat.ambient[1], tinyMat.ambient[2]);
+	material->m_ambientMap = CreateTexture(scene, directory, tinyMat.ambient_texname, textures);
+	material->m_emission = Spectrum(tinyMat.emission[0], tinyMat.emission[1], tinyMat.emission[2]);
+	material->m_isEmissive = isEmissive;
+
+	// add to scene
+	scene->m_materialList.push_back(material);
+
+	// CODEHERE - other textured material properties
+	// material->m_transmittance = Spectrum(tinyMat.transmittance[0], tinyMat.transmittance[1], tinyMat.transmittance[2]);
+	// material->m_refractionIndex = tinyMat.ior;
+
+	// bump_texname;				// map_bump, map_Bump, bump
+	// displacement_texname;		// disp
+	// alpha_texname;				// map_d
+	// reflection_texname;			// refl
+}
+
+Texture* Obj2scene::CreateTexture(Scene* scene, std::string directory, std::string filename, std::map<const std::string, Texture*>* textures)
+{
+	// material property is not textured
+	if (filename.length() == 0) {
+		return nullptr;
+	}
+
+	std::string filepath = directory + filename;
 
 	// find the texture in case it already was created
-	auto search = textures->find(filename);
+	auto search = textures->find(filepath);
 	if (search != textures->end()) {
 		return search->second;
 	} else {
@@ -324,14 +349,18 @@ Texture* Obj2scene::CreateTexture(Scene* scene, std::string filename, std::map<c
 		stbi_set_flip_vertically_on_load(true);
 
 		int w, h, n;
-		unsigned char* image = stbi_load(filename.c_str(), &w, &h, &n, STBI_rgb);
+		unsigned char* image = stbi_load(filepath.c_str(), &w, &h, &n, 0);
+
+		// CODEHERE - determine how to handle 2 channel textures if any
+		assert(n != 2);
 
 		if (!image) {
-			printf("STBI err - filename: %s\n", filename.c_str());
+			printf("STBI err - filepath: %s\n", filepath.c_str());
 		}
 
 		texture->m_width = w;
 		texture->m_height = h;
+		texture->m_numChannels = n;
 		texture->m_data = image;
 
 		// add texture to scene list
