@@ -155,7 +155,7 @@ Spectrum PtRenderer::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const uint
 		// store intersection data
 		SurfaceInteraction surfaceInteraction(rayHit, *m_scene);
 
-		// CODEHERE - investigate if g-buffer should be avereged across all samples or some other strategy
+		// CODEHERE - investigate if g-buffer should be averaged across all samples or some other strategy
 		/* fill g-buffer for first pixel sample */
 		if (pixelSample == 0 && bounce == 0) {
 			fillAdditionalBuffers(surfaceInteraction, bufferIndex);

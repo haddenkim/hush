@@ -64,10 +64,11 @@ public:
 protected:
 	// buffers
 	int m_bufferChannels; // FrameBufferChannel bitmask
-	std::vector<Spectrum> m_colorBuffer;
+
 	std::vector<Point3f> m_positionBuffer;
 	std::vector<Vec3f> m_normalBuffer;
 	std::vector<Spectrum> m_diffuseBuffer;
+	std::vector<Spectrum> m_colorBuffer;
 
 	// rendering helpers
 	void setupPrimaryRay(const uint x, const uint y, RTCRayHit& rayHit, Sampler& sampler);
