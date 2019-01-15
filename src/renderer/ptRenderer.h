@@ -69,19 +69,14 @@ protected:
 	float* m_normalBuffer;   // XYZ
 	float* m_diffuseBuffer;  // RGB
 
-	// camera settings
-	const float m_fovScale;
-	const float m_invWidth;
-	const float m_invHeight;
-
 	// rendering helpers
-	void setupPrimaryRay(const uint x, const uint y, const Mat4& c2w, RTCRayHit& rayHit, Sampler& sampler);
+	void setupPrimaryRay(const uint x, const uint y, RTCRayHit& rayHit, Sampler& sampler);
 	void setupIntersectRay(const Vec3f& origin, const Vec3f& direction, RTCRayHit& rayHit);
 	void setupOcclusionRay(const Vec3f& origin, const Vec3f& direction, const float tFar, RTCRay& pRay);
 	bool testNotOcclusion(const Vec3f& origin, const Vec3f& direction, const float tFar);
 
 	// rendering
-	void renderTile(const uint index, const Mat4& c2w);
+	void renderTile(const uint index);
 	Spectrum renderPixel(RTCRayHit& rayHit, Sampler& sampler, const uint pixelSample, const uint bufferIndex);
 
 	Spectrum uniformSampleOneLight(SurfaceInteraction& surfaceInteraction, Sampler& sampler);

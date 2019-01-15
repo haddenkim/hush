@@ -21,9 +21,6 @@ PtRenderer::PtRenderer(Scene* scene, Camera* camera)
 	: Renderer(scene, camera)
 	, m_numTilesX((m_width + TILE_SIZE - 1) / TILE_SIZE)
 	, m_numTilesY((m_height + TILE_SIZE - 1) / TILE_SIZE)
-	, m_fovScale(glm::tan(camera->m_fovY / 2))
-	, m_invWidth(1 / (float)m_width)
-	, m_invHeight(1 / (float)m_height)
 	, m_atrousDenoiser(AtrousDenoiser(this))
 {
 	// default settings
@@ -67,14 +64,12 @@ void PtRenderer::render3d()
 {
 	clearBuffers(m_bufferChannels);
 
-	const Mat4 c2w = m_camera->m_cameraToWorld;
-
 	tbb::parallel_for(size_t(0), size_t(m_numTilesX * m_numTilesY), [&](size_t i) {
-		renderTile(i, c2w);
+		renderTile(i);
 	});
 }
 
-void PtRenderer::renderTile(const uint index, const Mat4& c2w)
+void PtRenderer::renderTile(const uint index)
 {
 	/* calculate tile dimensions and pixels */
 	const uint tileY = index / m_numTilesX;								   // tile x index
@@ -98,7 +93,7 @@ void PtRenderer::renderTile(const uint index, const Mat4& c2w)
 				// create RNG sampler
 				samplers[rh] = Sampler(x, y, s);
 				// setup primary rays
-				setupPrimaryRay(x, y, c2w, rayHits[rh], samplers[rh]);
+				setupPrimaryRay(x, y, rayHits[rh], samplers[rh]);
 				rh++;
 			}
 		}
@@ -443,26 +438,20 @@ void PtRenderer::renderPostProcess()
 	renderTonemap();
 }
 
-void PtRenderer::setupPrimaryRay(const uint x, const uint y, const Mat4& c2w, RTCRayHit& rayHit, Sampler& sampler)
+void PtRenderer::setupPrimaryRay(const uint x, const uint y, RTCRayHit& rayHit, Sampler& sampler)
 {
 	// ray origin
-	rayHit.ray.org_x = c2w[3][0];
-	rayHit.ray.org_y = c2w[3][1];
-	rayHit.ray.org_z = c2w[3][2];
+	rayHit.ray.org_x = m_camera->m_position.x;
+	rayHit.ray.org_y = m_camera->m_position.y;
+	rayHit.ray.org_z = m_camera->m_position.z;
 
 	// CODEHERE - sample ray direction about the pixel square
 	// for now, x and y of each sample is fixed and identical
 
-	// ray direction
-	float Px = (2 * (((float)x + 0.5) * m_invWidth) - 1) * m_fovScale;
-	float Py = (2 * (((float)y + 0.5) * m_invHeight) - 1) * m_fovScale;
-
-	Vec3f camDir = Vec3f(Px, Py, -1);
-	glm::vec4 dir = glm::normalize(c2w * glm::vec4(camDir, 0.0f));
-
-	rayHit.ray.dir_x = dir.x;
-	rayHit.ray.dir_y = dir.y;
-	rayHit.ray.dir_z = dir.z;
+	int bufferIndex = ((y * m_width) + x);
+	rayHit.ray.dir_x = m_camera->m_directionBuffer[bufferIndex].x;
+	rayHit.ray.dir_y = m_camera->m_directionBuffer[bufferIndex].y;
+	rayHit.ray.dir_z = m_camera->m_directionBuffer[bufferIndex].z;
 
 	// common
 	rayHit.ray.tnear = 0;
