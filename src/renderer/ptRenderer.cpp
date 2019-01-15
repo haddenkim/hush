@@ -39,11 +39,10 @@ PtRenderer::PtRenderer(Scene* scene, Camera* camera)
 void PtRenderer::setupGBuffer()
 {
 	// buffer memory
-	m_bufferSize = m_width * m_height * 3;
-	m_colorBuffer = new float[m_bufferSize];
-	m_positionBuffer = new float[m_bufferSize];
-	m_normalBuffer = new float[m_bufferSize];
-	m_diffuseBuffer = new float[m_bufferSize];
+	m_colorBuffer = std::vector<Spectrum>(m_width * m_height, Spectrum(0.f));
+	m_positionBuffer = std::vector<Vec3f>(m_width * m_height, Point3f(0.f));
+	m_normalBuffer = std::vector<Vec3f>(m_width * m_height, Vec3f(0.f));
+	m_diffuseBuffer = std::vector<Spectrum>(m_width * m_height, Spectrum(0.f));
 
 	int gBufferCount = 4;
 	m_gBufferTex = new GLuint[gBufferCount];
@@ -109,10 +108,10 @@ void PtRenderer::renderTile(const uint index)
 
 	/* process each ray */
 	rh = 0;
-	int bufferIndex;
+	uint bufferIndex;
 
 	for (size_t y = y0; y < y1; y++) {
-		bufferIndex = (y * m_width + x0) * 3;
+		bufferIndex = (y * m_width + x0);
 
 		for (size_t x = x0; x < x1; x++) {
 			Spectrum color(0.f);
@@ -125,9 +124,11 @@ void PtRenderer::renderTile(const uint index)
 
 			/* pixel color is average of samples */
 			color /= (float)m_samplesPerPixel;
-			fillColorBuffer(color, bufferIndex);
+			
+			/* write to buffer */
+			m_colorBuffer[bufferIndex] = color;
 
-			bufferIndex += 3;
+			bufferIndex++;
 		}
 	}
 }
@@ -351,55 +352,35 @@ void PtRenderer::clearBuffers(int bufferChannels)
 
 	/* position */
 	if ((bufferChannels & FB_POSITION) == FB_POSITION) {
-		for (size_t i = 0; i < m_bufferSize; i++) {
-			m_positionBuffer[i] = 0.f;
-		}
+		std::fill(m_positionBuffer.begin(), m_positionBuffer.end(), Vec3f(0.f));
 	}
 
 	/* normal */
 	if ((bufferChannels & FB_NORMAL) == FB_NORMAL) {
-		for (size_t i = 0; i < m_bufferSize; i++) {
-			m_normalBuffer[i] = 0.f;
-		}
+		std::fill(m_normalBuffer.begin(), m_normalBuffer.end(), Vec3f(0.f));
 	}
 
 	/* diffuse */
 	if ((bufferChannels & FB_DIFFUSE) == FB_DIFFUSE) {
-		for (size_t i = 0; i < m_bufferSize; i++) {
-			m_diffuseBuffer[i] = 0.f;
-		}
+		std::fill(m_diffuseBuffer.begin(), m_diffuseBuffer.end(), Spectrum(0.f));
 	}
-}
-
-void PtRenderer::fillColorBuffer(const Spectrum& color, const uint bufferIndex)
-{
-	/* write to buffer */
-	m_colorBuffer[bufferIndex + 0] = color.r;
-	m_colorBuffer[bufferIndex + 1] = color.g;
-	m_colorBuffer[bufferIndex + 2] = color.b;
 }
 
 void PtRenderer::fillAdditionalBuffers(const SurfaceInteraction& surfaceInteraction, const uint bufferIndex)
 {
 	/* position */
 	if ((m_bufferChannels & FB_POSITION) == FB_POSITION) {
-		m_positionBuffer[bufferIndex + 0] = surfaceInteraction.m_position.x;
-		m_positionBuffer[bufferIndex + 1] = surfaceInteraction.m_position.y;
-		m_positionBuffer[bufferIndex + 2] = surfaceInteraction.m_position.z;
+		m_positionBuffer[bufferIndex] = surfaceInteraction.m_position;
 	}
 
 	/* normal */
 	if ((m_bufferChannels & FB_NORMAL) == FB_NORMAL) {
-		m_normalBuffer[bufferIndex + 0] = surfaceInteraction.m_normalShade.x;
-		m_normalBuffer[bufferIndex + 1] = surfaceInteraction.m_normalShade.y;
-		m_normalBuffer[bufferIndex + 2] = surfaceInteraction.m_normalShade.z;
+		m_normalBuffer[bufferIndex] = surfaceInteraction.m_normalShade;
 	}
 
 	/* diffuse */
 	if ((m_bufferChannels & FB_DIFFUSE) == FB_DIFFUSE) {
-		m_diffuseBuffer[bufferIndex + 0] = surfaceInteraction.m_diffuse.r;
-		m_diffuseBuffer[bufferIndex + 1] = surfaceInteraction.m_diffuse.g;
-		m_diffuseBuffer[bufferIndex + 2] = surfaceInteraction.m_diffuse.b;
+		m_diffuseBuffer[bufferIndex] = surfaceInteraction.m_diffuse;
 	}
 }
 
@@ -410,21 +391,21 @@ void PtRenderer::renderPostProcess()
 	case NONE:
 		// simply buffer color next texture in pipeline
 		glBindTexture(GL_TEXTURE_2D, m_preTonemapImage);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_colorBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, &m_colorBuffer[0]);
 		glBindTexture(GL_TEXTURE_2D, m_gBufferTex[0]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_colorBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, &m_colorBuffer[0]);
 		break;
 
 	case ATROUS:
 		// buffer pathtracer output to openGL
 		glBindTexture(GL_TEXTURE_2D, m_gBufferTex[0]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_colorBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, &m_colorBuffer[0]);
 		glBindTexture(GL_TEXTURE_2D, m_gBufferTex[1]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_positionBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, &m_positionBuffer[0]);
 		glBindTexture(GL_TEXTURE_2D, m_gBufferTex[2]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_normalBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, &m_normalBuffer[0]);
 		glBindTexture(GL_TEXTURE_2D, m_gBufferTex[3]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_diffuseBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, &m_diffuseBuffer[0]);
 
 		m_atrousDenoiser.render();
 

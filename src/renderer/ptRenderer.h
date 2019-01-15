@@ -6,6 +6,7 @@
 #include "renderer.h"
 #include <embree3/rtcore.h>
 #include <glad/glad.h>
+#include <vector>
 
 class Mesh;
 class Scene;
@@ -62,12 +63,12 @@ public:
 
 protected:
 	// buffers
-	uint m_bufferSize;
-	int m_bufferChannels;	// FrameBufferChannel bitmask
-	float* m_colorBuffer;	// RGB
-	float* m_positionBuffer; // XYZ
-	float* m_normalBuffer;   // XYZ
-	float* m_diffuseBuffer;  // RGB
+	// uint m_bufferSize;
+	int m_bufferChannels; // FrameBufferChannel bitmask
+	std::vector<Spectrum> m_colorBuffer;
+	std::vector<Point3f> m_positionBuffer;
+	std::vector<Vec3f> m_normalBuffer;
+	std::vector<Spectrum> m_diffuseBuffer;
 
 	// rendering helpers
 	void setupPrimaryRay(const uint x, const uint y, RTCRayHit& rayHit, Sampler& sampler);
@@ -86,7 +87,6 @@ protected:
 	Spectrum sampleBsdf(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler);
 
 	void clearBuffers(int bufferChannels);
-	void fillColorBuffer(const Spectrum& color, const uint bufferIndex);
 	void fillAdditionalBuffers(const SurfaceInteraction& surfaceInteraction, const uint bufferIndex);
 
 	// setup helper
