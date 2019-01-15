@@ -63,7 +63,6 @@ public:
 
 protected:
 	// buffers
-	// uint m_bufferSize;
 	int m_bufferChannels; // FrameBufferChannel bitmask
 	std::vector<Spectrum> m_colorBuffer;
 	std::vector<Point3f> m_positionBuffer;
