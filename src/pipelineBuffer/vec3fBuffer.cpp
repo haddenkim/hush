@@ -3,7 +3,7 @@
 Vec3fBuffer::Vec3fBuffer(PipelineIO type, uint width, uint height)
 	: Buffer(type, width, height, true)
 {
-	m_data = std::vector<Vec3f>(width * height, Spectrum(0.f));
+	m_data = std::vector<Vec3f>(width * height, Vec3f(0.f));
 }
 
 void Vec3fBuffer::prepareToDisplay()
