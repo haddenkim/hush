@@ -13,6 +13,7 @@ enum RenderPassType {
 	RASTER_GBUFFER,
 
 	// ray trace
+	RT_FULL_GI,
 
 	// screen space
 	SS_DIRECT_LIGHT,

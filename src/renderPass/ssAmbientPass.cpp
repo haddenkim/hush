@@ -1,5 +1,5 @@
 #include "renderPass/ssAmbientPass.h"
-#include "pipeline/buffer.h"
+#include "pipelineBuffer/buffer.h"
 #include "shaders/loadShader.h"
 
 SsAmbientPass::SsAmbientPass(Buffer* colorBuffer,

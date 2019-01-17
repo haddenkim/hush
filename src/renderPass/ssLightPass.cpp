@@ -1,7 +1,7 @@
 #include "renderPass/ssLightPass.h"
 #include "camera/camera.h"
 #include "light/light.h"
-#include "pipeline/buffer.h"
+#include "pipelineBuffer/buffer.h"
 #include "scene/scene.h"
 #include "shaders/loadShader.h"
 

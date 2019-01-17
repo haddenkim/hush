@@ -38,6 +38,8 @@ enum PipelineIO {
 	LIGHT_DIRECT,
 	LIGHT_INDIRECT,
 
+	RT_COLOR,
+
 	// Constructed color
 	COLOR,
 
@@ -65,6 +67,7 @@ static const char* PipelineIONames[] = {
 	"G_MAT_TRANSMISSIVE",
 	"LIGHT_DIRECT",
 	"LIGHT_INDIRECT",
+	"RT_COLOR",
 	"COLOR",
 };
 

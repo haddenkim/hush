@@ -1,5 +1,6 @@
 #include "pipeline.h"
 #include "camera/camera.h"
+#include "pipelineBuffer/buffer.h"
 #include "renderPass/renderPass.h"
 #include "shaders/loadShader.h"
 #include <glad/glad.h>
@@ -72,7 +73,7 @@ void Pipeline::addPass(RenderPassType type, int position)
 	}
 }
 
-Buffer* Pipeline::getOrCreateBuffer(PipelineIO type)
+Buffer* Pipeline::getOrCreateBuffer(PipelineIO type, bool isCPU)
 {
 	int index = std::find(m_bufferTypes.begin(), m_bufferTypes.end(), type) - m_bufferTypes.begin();
 
@@ -83,7 +84,7 @@ Buffer* Pipeline::getOrCreateBuffer(PipelineIO type)
 		//
 		m_bufferTypes.push_back(type);
 
-		Buffer* buffer = new Buffer(type, m_width, m_height);
+		Buffer* buffer = Buffer::create(type, m_width, m_height, isCPU);
 
 		m_buffers.emplace_back(buffer);
 

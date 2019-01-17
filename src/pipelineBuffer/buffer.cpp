@@ -1,12 +1,28 @@
 #include "buffer.h"
 #include <cassert>
 
-Buffer::Buffer(PipelineIO type, uint width, uint height)
+#include "pipelineBuffer/spectrumBuffer.h"
+
+Buffer::Buffer(PipelineIO type, uint width, uint height, bool isCPU)
 	: m_type(type)
 	, m_width(width)
 	, m_height(height)
 	, m_glId(setupGL(type, width, height))
 {
+}
+
+Buffer* Buffer::create(PipelineIO type, uint width, uint height, bool isCPU)
+{
+	Buffer* buffer;
+
+	if (isCPU && type == RT_COLOR) {
+		buffer = new SpectrumBuffer(type, width, height);
+
+	} else {
+		buffer = new Buffer(type, width, height, isCPU);
+	}
+
+	return buffer;
 }
 
 void Buffer::prepareToDisplay()
@@ -28,6 +44,7 @@ GLuint Buffer::setupGL(PipelineIO type, uint width, uint height)
 	case G_MAT_DIFFUSE:
 	case LIGHT_DIRECT:
 	case LIGHT_INDIRECT:
+	case RT_COLOR:
 	case COLOR:
 		format = GL_RGB;
 		break;

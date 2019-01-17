@@ -1,7 +1,6 @@
 #pragma once
 #include "common.h"
 #include "gui/iGuiEditable.h"
-#include "pipeline/buffer.h"
 #include "pipeline/pipelineIO.h"
 #include "renderPass/renderPass.h"
 #include <glad/glad.h>
@@ -10,6 +9,7 @@
 
 class Scene;
 class Camera;
+class Buffer;
 
 class Pipeline : public IGuiEditable {
 public:
@@ -21,7 +21,7 @@ public:
 
 	// modification
 	void addPass(RenderPassType type, int position = -1);
-	Buffer* getOrCreateBuffer(PipelineIO type);
+	Buffer* getOrCreateBuffer(PipelineIO type, bool isCPU = false);
 
 	std::vector<RenderPass*> m_passes;
 

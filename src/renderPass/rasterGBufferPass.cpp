@@ -1,7 +1,7 @@
 #include "rasterGBufferPass.h"
 #include "camera/camera.h"
 #include "material/material.h"
-#include "pipeline/buffer.h"
+#include "pipelineBuffer/buffer.h"
 #include "scene/mesh.h"
 #include "scene/scene.h"
 #include "shaders/loadShader.h"

@@ -1,8 +1,8 @@
 #include "app/viewer.h"
 #include "camera/camera.h"
 #include "common.h"
-#include "renderPass/renderPass.h"
 #include "pipeline/pipeline.h"
+#include "renderPass/renderPass.h"
 #include "scene/obj2scene.h"
 #include "scene/scene.h"
 
@@ -28,8 +28,11 @@ int main(int argc, char** argv)
 	Viewer viewer(WINDOW_WIDTH, WINDOW_HEIGHT, &scene, &camera);
 
 	// initialize pipelines
-	Pipeline simpleRaster(&scene, &camera, {RASTER_GBUFFER, SS_DIRECT_LIGHT, SS_AMBIENT});
+	Pipeline simpleRaster(&scene, &camera, { RASTER_GBUFFER, SS_DIRECT_LIGHT, SS_AMBIENT });
 	viewer.addPipeline(&simpleRaster);
+
+	Pipeline pathTracer(&scene, &camera, { RT_FULL_GI });
+	viewer.addPipeline(&pathTracer);
 
 	// start rendering
 	viewer.start();

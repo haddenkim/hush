@@ -1,9 +1,10 @@
 #include "renderPass.h"
 #include "renderPass/rasterGBufferPass.h"
+#include "renderPass/rtFullGiPass.h"
 #include "renderPass/ssAmbientPass.h"
 #include "renderPass/ssLightPass.h"
 
-#include "pipeline/buffer.h"
+#include "pipelineBuffer/buffer.h"
 #include "pipeline/pipeline.h"
 
 RenderPass::RenderPass(std::string name,
@@ -49,6 +50,12 @@ RenderPass* RenderPass::create(RenderPassType type, Pipeline* pipeline)
 								 pipeline->getOrCreateBuffer(G_MAT_AMBIENT),
 								 pipeline->getOrCreateBuffer(G_MAT_DIFFUSE),
 								 pipeline->m_canvasVAO);
+		break;
+
+	case RT_FULL_GI:
+		pass = new RtFullGiPass(pipeline->m_scene,
+								pipeline->m_camera,
+								pipeline->getOrCreateBuffer(RT_COLOR, true));
 		break;
 
 	default:
