@@ -1,4 +1,4 @@
-#include "renderPass/ssAmbientPass.h"
+#include "renderPass/raster/ssAmbientPass.h"
 #include "pipelineBuffer/buffer.h"
 #include "shaders/loadShader.h"
 

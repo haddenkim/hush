@@ -1,6 +1,6 @@
-#include "renderPass/rasterGBufferPass.h"
-#include "renderPass/ssAmbientPass.h"
-#include "renderPass/ssLightPass.h"
+#include "renderPass/raster/rasterGBufferPass.h"
+#include "renderPass/raster/ssAmbientPass.h"
+#include "renderPass/raster/ssLightPass.h"
 
 bool RasterGBufferPass::guiEdit()
 {

@@ -1,4 +1,4 @@
-#include "renderPass/ssLightPass.h"
+#include "ssLightPass.h"
 #include "camera/camera.h"
 #include "light/light.h"
 #include "pipelineBuffer/buffer.h"

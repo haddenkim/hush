@@ -1,8 +1,8 @@
 #include "renderPass.h"
-#include "renderPass/rasterGBufferPass.h"
-#include "renderPass/rtFullGiPass.h"
-#include "renderPass/ssAmbientPass.h"
-#include "renderPass/ssLightPass.h"
+#include "renderPass/raster/rasterGBufferPass.h"
+#include "renderPass/ray/pathTracePass.h"
+#include "renderPass/raster/ssAmbientPass.h"
+#include "renderPass/raster/ssLightPass.h"
 
 #include "pipelineBuffer/buffer.h"
 #include "pipeline/pipeline.h"
@@ -53,7 +53,7 @@ RenderPass* RenderPass::create(RenderPassType type, Pipeline* pipeline)
 		break;
 
 	case RT_FULL_GI:
-		pass = new RtFullGiPass(pipeline->m_scene,
+		pass = new PathTracePass(pipeline->m_scene,
 								pipeline->m_camera,
 								pipeline->getOrCreateBuffer(RT_COLOR, true));
 		break;

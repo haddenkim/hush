@@ -15,12 +15,12 @@ enum DirectLightStrategy : int {
 	UNIFORM_ALL = 1
 };
 
-class RtFullGiPass : public RenderPass {
+class PathTracePass : public RenderPass {
 public:
-	RtFullGiPass(Scene* scene,
-				 Camera* camera,
+	PathTracePass(Scene* scene,
+				  Camera* camera,
 
-				 Buffer* rtColorBuffer);
+				  Buffer* rtColorBuffer);
 
 	void render() override;
 

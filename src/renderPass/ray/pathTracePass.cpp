@@ -1,4 +1,4 @@
-#include "rtFullGiPass.h"
+#include "pathTracePass.h"
 
 #include "camera/camera.h"
 #include "interaction/surfaceInteraction.h"
@@ -20,7 +20,7 @@
 #define TILE_SIZE 8
 #define RAY_EPSILON 1e-5
 
-RtFullGiPass::RtFullGiPass(Scene* scene,
+PathTracePass::PathTracePass(Scene* scene,
 						   Camera* camera,
 
 						   Buffer* rtColorBuffer)
@@ -46,7 +46,7 @@ RtFullGiPass::RtFullGiPass(Scene* scene,
 	m_minContribution = 0.1f;
 }
 
-void RtFullGiPass::render()
+void PathTracePass::render()
 {
 
 	// render tiles in parallel
@@ -58,7 +58,7 @@ void RtFullGiPass::render()
 	m_rtColorBuffer->m_isReadyToDisplay = false;
 }
 
-void RtFullGiPass::renderTile(const uint index)
+void PathTracePass::renderTile(const uint index)
 {
 	/* calculate tile dimensions and pixels */
 	const uint tileY = index / m_numTilesX;								   // tile x index
@@ -124,7 +124,7 @@ void RtFullGiPass::renderTile(const uint index)
 }
 
 
-Spectrum RtFullGiPass::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const uint pixelSample, const uint bufferIndex)
+Spectrum PathTracePass::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const uint pixelSample, const uint bufferIndex)
 {
 	Spectrum L(0.0f);	// color
 	Spectrum beta(1.0f); // weight
@@ -199,7 +199,7 @@ Spectrum RtFullGiPass::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const ui
 	return L;
 }
 
-Spectrum RtFullGiPass::uniformSampleAllLights(SurfaceInteraction& surfaceInteraction, Sampler& sampler)
+Spectrum PathTracePass::uniformSampleAllLights(SurfaceInteraction& surfaceInteraction, Sampler& sampler)
 {
 	Spectrum L(0.f);
 	for (Light* light : m_scene->m_enabledLightList) {
@@ -215,7 +215,7 @@ Spectrum RtFullGiPass::uniformSampleAllLights(SurfaceInteraction& surfaceInterac
 	return L;
 }
 
-Spectrum RtFullGiPass::uniformSampleOneLight(SurfaceInteraction& surfaceInteraction, Sampler& sampler)
+Spectrum PathTracePass::uniformSampleOneLight(SurfaceInteraction& surfaceInteraction, Sampler& sampler)
 {
 	// early terminate if no lights
 	int numLights = m_scene->m_enabledLightList.size();
@@ -236,7 +236,7 @@ Spectrum RtFullGiPass::uniformSampleOneLight(SurfaceInteraction& surfaceInteract
 		* (float)numLights;									   // pdf of choosing light source is 1/numLights, so radiance/pdf = radiance * numLights
 }
 
-Spectrum RtFullGiPass::estimateDirect(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
+Spectrum PathTracePass::estimateDirect(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
 {
 	Spectrum L(0.f);
 
@@ -251,7 +251,7 @@ Spectrum RtFullGiPass::estimateDirect(SurfaceInteraction& surfaceInteraction, co
 	return L / (float)m_samplesPerLight;
 }
 
-Spectrum RtFullGiPass::sampleLight(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
+Spectrum PathTracePass::sampleLight(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
 {
 	// sample the light
 	LightSample lightSample = light.sampleLi(surfaceInteraction.m_position, sampler);
@@ -286,7 +286,7 @@ Spectrum RtFullGiPass::sampleLight(SurfaceInteraction& surfaceInteraction, const
 	}
 }
 
-Spectrum RtFullGiPass::sampleBsdf(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
+Spectrum PathTracePass::sampleBsdf(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
 {
 	// sample the material
 	MaterialSample matSample = surfaceInteraction.m_material->sample(surfaceInteraction, sampler);
@@ -337,7 +337,7 @@ Spectrum RtFullGiPass::sampleBsdf(SurfaceInteraction& surfaceInteraction, const 
 	return matSample.m_albedo * lightRadiance * weight / matSample.m_pdf;
 }
 
-void RtFullGiPass::setupPrimaryRay(const uint x, const uint y, RTCRayHit& rayHit, Sampler& sampler)
+void PathTracePass::setupPrimaryRay(const uint x, const uint y, RTCRayHit& rayHit, Sampler& sampler)
 {
 	// ray origin
 	rayHit.ray.org_x = m_camera->m_position.x;
@@ -361,7 +361,7 @@ void RtFullGiPass::setupPrimaryRay(const uint x, const uint y, RTCRayHit& rayHit
 	rayHit.hit.primID = RTC_INVALID_GEOMETRY_ID;
 }
 
-void RtFullGiPass::setupIntersectRay(const Vec3f& origin, const Vec3f& direction, RTCRayHit& rayHit)
+void PathTracePass::setupIntersectRay(const Vec3f& origin, const Vec3f& direction, RTCRayHit& rayHit)
 {
 	// ray origin
 	rayHit.ray.org_x = origin.x;
@@ -383,7 +383,7 @@ void RtFullGiPass::setupIntersectRay(const Vec3f& origin, const Vec3f& direction
 	rayHit.hit.primID = RTC_INVALID_GEOMETRY_ID;
 }
 
-void RtFullGiPass::setupOcclusionRay(const Vec3f& origin, const Vec3f& direction, const float tFar, RTCRay& pRay)
+void PathTracePass::setupOcclusionRay(const Vec3f& origin, const Vec3f& direction, const float tFar, RTCRay& pRay)
 {
 	// ray origin
 	pRay.org_x = origin.x;
@@ -401,7 +401,7 @@ void RtFullGiPass::setupOcclusionRay(const Vec3f& origin, const Vec3f& direction
 	pRay.mask = -1;
 }
 
-bool RtFullGiPass::testNotOcclusion(const Vec3f& origin, const Vec3f& direction, const float tFar)
+bool PathTracePass::testNotOcclusion(const Vec3f& origin, const Vec3f& direction, const float tFar)
 {
 	RTCRay shadowRay;
 	RTCIntersectContext context;
@@ -412,6 +412,6 @@ bool RtFullGiPass::testNotOcclusion(const Vec3f& origin, const Vec3f& direction,
 }
 
 
-bool RtFullGiPass::guiEdit()
+bool PathTracePass::guiEdit()
 {
 }
