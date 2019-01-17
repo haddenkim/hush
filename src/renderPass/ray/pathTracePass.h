@@ -1,5 +1,5 @@
 #pragma once
-#include "renderPass/renderPass.h"
+#include "renderPass/rayPass.h"
 #include <embree3/rtcore.h>
 
 class Scene;
@@ -15,12 +15,9 @@ enum DirectLightStrategy : int {
 	UNIFORM_ALL = 1
 };
 
-class PathTracePass : public RenderPass {
+class PathTracePass : public RayPass {
 public:
-	PathTracePass(Scene* scene,
-				  Camera* camera,
-
-				  Buffer* rtColorBuffer);
+	PathTracePass(Pipeline* pipeline);
 
 	void render() override;
 

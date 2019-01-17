@@ -15,26 +15,24 @@
 #include <tbb/tbb.h>
 #include <vector>
 
+#include "pipeline/pipeline.h"
 #include "pipelineBuffer/spectrumBuffer.h"
 
 #define TILE_SIZE 8
 #define RAY_EPSILON 1e-5
 
-PathTracePass::PathTracePass(Scene* scene,
-						   Camera* camera,
-
-						   Buffer* rtColorBuffer)
-	: RenderPass("Ray Trace Full Global Illumination",
-				 RT_FULL_GI,
-				 { CAM_POSITION, CAM_DIRECTION, MESH }, // inputs
-				 { RT_COLOR })							// outputs
-	, m_scene(scene)
-	, m_camera(camera)
-	, m_width(camera->m_width)
-	, m_height(camera->m_height)
-	, m_numTilesX((camera->m_width + TILE_SIZE - 1) / TILE_SIZE)
-	, m_numTilesY((camera->m_height + TILE_SIZE - 1) / TILE_SIZE)
-	, m_rtColorBuffer(static_cast<SpectrumBuffer*>(rtColorBuffer))
+PathTracePass::PathTracePass(Pipeline* pipeline)
+	: RayPass("Path Trace",
+			  RT_FULL_GI,
+			  { CAM_POSITION, CAM_DIRECTION, MESH }, // inputs
+			  { RT_COLOR })							 // outputs
+	, m_scene(pipeline->m_scene)
+	, m_camera(pipeline->m_camera)
+	, m_width(pipeline->m_width)
+	, m_height(pipeline->m_height)
+	, m_numTilesX((pipeline->m_width + TILE_SIZE - 1) / TILE_SIZE)
+	, m_numTilesY((pipeline->m_height + TILE_SIZE - 1) / TILE_SIZE)
+	, m_rtColorBuffer(static_cast<SpectrumBuffer*>(pipeline->getOrCreateBuffer(RT_COLOR, true)))
 {
 
 	// initial settings
@@ -122,7 +120,6 @@ void PathTracePass::renderTile(const uint index)
 		}
 	}
 }
-
 
 Spectrum PathTracePass::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const uint pixelSample, const uint bufferIndex)
 {
@@ -410,7 +407,6 @@ bool PathTracePass::testNotOcclusion(const Vec3f& origin, const Vec3f& direction
 	rtcOccluded1(m_scene->m_embScene, &context, &shadowRay);
 	return shadowRay.tfar > 0;
 }
-
 
 bool PathTracePass::guiEdit()
 {

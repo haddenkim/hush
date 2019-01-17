@@ -3,23 +3,17 @@
 
 class Scene;
 class Camera;
+class Pipeline;
 class Buffer;
 
 class SsLightPass : public GlPass {
 public:
-	SsLightPass(Scene* scene,
-				Camera* camera,
-				Buffer* positionBuffer,
-				Buffer* normalBuffer,
-				Buffer* matDiffuseBuffer,
-				Buffer* matSpecularBuffer,
-				Buffer* colorBuffer,
-				GLuint canvasVAO);
+	SsLightPass(Pipeline* pipeline);
 
 	void render() override;
 	// UI
 	bool guiEdit() override;
-		
+
 protected:
 	// setup helpers
 	void setupShader() override;

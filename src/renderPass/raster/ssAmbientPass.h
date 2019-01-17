@@ -1,14 +1,12 @@
 #pragma once
 #include "renderPass/glPass.h"
 
+class Pipeline;
 class Buffer;
 
 class SsAmbientPass : public GlPass {
 public:
-	SsAmbientPass(Buffer* colorBuffer,
-				  Buffer* matAmbientBuffer,
-				  Buffer* matDiffuseBuffer,
-				  GLuint canvasVAO);
+	SsAmbientPass(Pipeline* pipeline);
 
 	void render() override;
 

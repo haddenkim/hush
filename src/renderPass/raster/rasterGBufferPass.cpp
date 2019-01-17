@@ -1,31 +1,25 @@
 #include "rasterGBufferPass.h"
 #include "camera/camera.h"
 #include "material/material.h"
+#include "pipeline/pipeline.h"
 #include "pipelineBuffer/buffer.h"
 #include "scene/mesh.h"
 #include "scene/scene.h"
 #include "shaders/loadShader.h"
 #include "texture/texture.h"
 
-RasterGBufferPass::RasterGBufferPass(Scene* scene,
-									 Camera* camera,
-
-									 Buffer* positionBuffer,
-									 Buffer* normalBuffer,
-									 Buffer* matAmbientBuffer,
-									 Buffer* matDiffuseBuffer,
-									 Buffer* matSpecularBuffer)
+RasterGBufferPass::RasterGBufferPass(Pipeline* pipeline)
 	: GlPass("Raster G-Buffer",
 			 RASTER_GBUFFER,
 			 { CAM_VP, MESH, MAT_AMBIENT, MAT_DIFFUSE, MAT_SPECULAR },				 // inputs
 			 { G_POSITION, G_NORMAL, G_MAT_AMBIENT, G_MAT_DIFFUSE, G_MAT_SPECULAR }) // outputs
-	, m_scene(scene)
-	, m_camera(camera)
-	, m_positionBuffer(positionBuffer)
-	, m_normalBuffer(normalBuffer)
-	, m_matAmbientBuffer(matAmbientBuffer)
-	, m_matDiffuseBuffer(matDiffuseBuffer)
-	, m_matSpecularBuffer(matSpecularBuffer)
+	, m_scene(pipeline->m_scene)
+	, m_camera(pipeline->m_camera)
+	, m_positionBuffer(pipeline->getOrCreateBuffer(G_POSITION))
+	, m_normalBuffer(pipeline->getOrCreateBuffer(G_NORMAL))
+	, m_matAmbientBuffer(pipeline->getOrCreateBuffer(G_MAT_AMBIENT))
+	, m_matDiffuseBuffer(pipeline->getOrCreateBuffer(G_MAT_DIFFUSE))
+	, m_matSpecularBuffer(pipeline->getOrCreateBuffer(G_MAT_SPECULAR))
 {
 	setupShader();
 	setupFBO();

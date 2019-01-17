@@ -1,19 +1,17 @@
 #include "renderPass/raster/ssAmbientPass.h"
+#include "pipeline/pipeline.h"
 #include "pipelineBuffer/buffer.h"
 #include "shaders/loadShader.h"
 
-SsAmbientPass::SsAmbientPass(Buffer* colorBuffer,
-							 Buffer* matAmbientBuffer,
-							 Buffer* matDiffuseBuffer,
-							 GLuint canvasVAO)
+SsAmbientPass::SsAmbientPass(Pipeline* pipeline)
 	: GlPass("Screen Space Ambient Lighting",
 			 RASTER_GBUFFER,
 			 { COLOR, G_MAT_AMBIENT, G_MAT_DIFFUSE }, // inputs
 			 { COLOR })								  // outputs
-	, m_colorBuffer(colorBuffer)
-	, m_matAmbientBuffer(matAmbientBuffer)
-	, m_matDiffuseBuffer(matDiffuseBuffer)
-	, m_canvasVAO(canvasVAO)
+	, m_colorBuffer(pipeline->getOrCreateBuffer(COLOR))
+	, m_matAmbientBuffer(pipeline->getOrCreateBuffer(G_MAT_AMBIENT))
+	, m_matDiffuseBuffer(pipeline->getOrCreateBuffer(G_MAT_DIFFUSE))
+	, m_canvasVAO(pipeline->m_canvasVAO)
 {
 	setupShader();
 	setupFBO();

@@ -1,11 +1,11 @@
 #include "renderPass.h"
 #include "renderPass/raster/rasterGBufferPass.h"
-#include "renderPass/ray/pathTracePass.h"
 #include "renderPass/raster/ssAmbientPass.h"
 #include "renderPass/raster/ssLightPass.h"
+#include "renderPass/ray/pathTracePass.h"
 
-#include "pipelineBuffer/buffer.h"
 #include "pipeline/pipeline.h"
+#include "pipelineBuffer/buffer.h"
 
 RenderPass::RenderPass(std::string name,
 					   RenderPassType type,
@@ -25,37 +25,19 @@ RenderPass* RenderPass::create(RenderPassType type, Pipeline* pipeline)
 
 	switch (type) {
 	case RASTER_GBUFFER:
-		pass = new RasterGBufferPass(pipeline->m_scene,
-									 pipeline->m_camera,
-									 pipeline->getOrCreateBuffer(G_POSITION),
-									 pipeline->getOrCreateBuffer(G_NORMAL),
-									 pipeline->getOrCreateBuffer(G_MAT_AMBIENT),
-									 pipeline->getOrCreateBuffer(G_MAT_DIFFUSE),
-									 pipeline->getOrCreateBuffer(G_MAT_SPECULAR));
+		pass = new RasterGBufferPass(pipeline);
 		break;
 
 	case SS_DIRECT_LIGHT:
-		pass = new SsLightPass(pipeline->m_scene,
-							   pipeline->m_camera,
-							   pipeline->getOrCreateBuffer(G_POSITION),
-							   pipeline->getOrCreateBuffer(G_NORMAL),
-							   pipeline->getOrCreateBuffer(G_MAT_DIFFUSE),
-							   pipeline->getOrCreateBuffer(G_MAT_SPECULAR),
-							   pipeline->getOrCreateBuffer(COLOR),
-							   pipeline->m_canvasVAO);
+		pass = new SsLightPass(pipeline);
 		break;
 
 	case SS_AMBIENT:
-		pass = new SsAmbientPass(pipeline->getOrCreateBuffer(COLOR),
-								 pipeline->getOrCreateBuffer(G_MAT_AMBIENT),
-								 pipeline->getOrCreateBuffer(G_MAT_DIFFUSE),
-								 pipeline->m_canvasVAO);
+		pass = new SsAmbientPass(pipeline);
 		break;
 
 	case RT_FULL_GI:
-		pass = new PathTracePass(pipeline->m_scene,
-								pipeline->m_camera,
-								pipeline->getOrCreateBuffer(RT_COLOR, true));
+		pass = new PathTracePass(pipeline);
 		break;
 
 	default:

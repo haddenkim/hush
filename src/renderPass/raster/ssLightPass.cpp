@@ -1,32 +1,24 @@
 #include "ssLightPass.h"
 #include "camera/camera.h"
 #include "light/light.h"
+#include "pipeline/pipeline.h"
 #include "pipelineBuffer/buffer.h"
 #include "scene/scene.h"
 #include "shaders/loadShader.h"
 
-SsLightPass::SsLightPass(Scene* scene,
-						 Camera* camera,
-						 Buffer* positionBuffer,
-						 Buffer* normalBuffer,
-						 Buffer* matDiffuseBuffer,
-						 Buffer* matSpecularBuffer,
-
-						 Buffer* colorBuffer,
-						 GLuint canvasVAO)
-
+SsLightPass::SsLightPass(Pipeline* pipeline)
 	: GlPass("Screen Space Direct Lighting",
 			 RASTER_GBUFFER,
 			 { CAM_POSITION, LIGHT_POSITION, LIGHT_INTENSITY, G_POSITION, G_NORMAL, G_MAT_DIFFUSE, G_MAT_SPECULAR }, // inputs
 			 { COLOR })																								 // outputs
-	, m_scene(scene)
-	, m_camera(camera)
-	, m_positionBuffer(positionBuffer)
-	, m_normalBuffer(normalBuffer)
-	, m_matDiffuseBuffer(matDiffuseBuffer)
-	, m_matSpecularBuffer(matSpecularBuffer)
-	, m_colorBuffer(colorBuffer)
-	, m_canvasVAO(canvasVAO)
+	, m_scene(pipeline->m_scene)
+	, m_camera(pipeline->m_camera)
+	, m_positionBuffer(pipeline->getOrCreateBuffer(G_POSITION))
+	, m_normalBuffer(pipeline->getOrCreateBuffer(G_NORMAL))
+	, m_matDiffuseBuffer(pipeline->getOrCreateBuffer(G_MAT_DIFFUSE))
+	, m_matSpecularBuffer(pipeline->getOrCreateBuffer(G_MAT_SPECULAR))
+	, m_colorBuffer(pipeline->getOrCreateBuffer(COLOR))
+	, m_canvasVAO(pipeline->m_canvasVAO)
 {
 	setupShader();
 	setupFBO();

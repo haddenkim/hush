@@ -3,18 +3,12 @@
 
 class Scene;
 class Camera;
+class Pipeline;
 class Buffer;
 
 class RasterGBufferPass : public GlPass {
 public:
-	RasterGBufferPass(Scene* scene,
-					  Camera* camera,
-
-					  Buffer* positionBuffer,
-					  Buffer* normalBuffer,
-					  Buffer* matAmbientBuffer,
-					  Buffer* matDiffuseBuffer,
-					  Buffer* matSpecularBuffer);
+	RasterGBufferPass(Pipeline* pipeline);
 
 	void render() override;
 	// UI
