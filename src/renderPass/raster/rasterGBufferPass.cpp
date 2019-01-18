@@ -2,7 +2,9 @@
 #include "camera/camera.h"
 #include "material/material.h"
 #include "pipeline/pipeline.h"
-#include "pipelineBuffer/buffer.h"
+#include "pipelineBuffer/bufferManager.h"
+#include "pipelineBuffer/gpuBuffer.h"
+
 #include "scene/mesh.h"
 #include "scene/scene.h"
 #include "shaders/loadShader.h"
@@ -15,11 +17,11 @@ RasterGBufferPass::RasterGBufferPass(Pipeline* pipeline)
 			 { G_POSITION, G_NORMAL, G_MAT_AMBIENT, G_MAT_DIFFUSE, G_MAT_SPECULAR }) // outputs
 	, m_scene(pipeline->m_scene)
 	, m_camera(pipeline->m_camera)
-	, m_positionBuffer(pipeline->getOrCreateBuffer(G_POSITION))
-	, m_normalBuffer(pipeline->getOrCreateBuffer(G_NORMAL))
-	, m_matAmbientBuffer(pipeline->getOrCreateBuffer(G_MAT_AMBIENT))
-	, m_matDiffuseBuffer(pipeline->getOrCreateBuffer(G_MAT_DIFFUSE))
-	, m_matSpecularBuffer(pipeline->getOrCreateBuffer(G_MAT_SPECULAR))
+	, m_positionBuffer(pipeline->m_bufferManager.requestGpuBuffer(G_POSITION))
+	, m_normalBuffer(pipeline->m_bufferManager.requestGpuBuffer(G_NORMAL))
+	, m_matAmbientBuffer(pipeline->m_bufferManager.requestGpuBuffer(G_MAT_AMBIENT))
+	, m_matDiffuseBuffer(pipeline->m_bufferManager.requestGpuBuffer(G_MAT_DIFFUSE))
+	, m_matSpecularBuffer(pipeline->m_bufferManager.requestGpuBuffer(G_MAT_SPECULAR))
 {
 	setupShader();
 	setupFBO();
@@ -102,11 +104,11 @@ void RasterGBufferPass::setupFBO()
 	glGenFramebuffers(1, &m_FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_positionBuffer->m_glId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_normalBuffer->m_glId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_matAmbientBuffer->m_glId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_matDiffuseBuffer->m_glId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, m_matSpecularBuffer->m_glId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_positionBuffer->m_texId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_normalBuffer->m_texId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_matAmbientBuffer->m_texId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_matDiffuseBuffer->m_texId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, m_matSpecularBuffer->m_texId, 0);
 
 	GLuint attachments[5] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
 	glDrawBuffers(5, attachments);

@@ -1,13 +1,14 @@
 #include "common.h"
-#include "pipelineBuffer/buffer.h"
+#include "pipelineBuffer/cpuBuffer.h"
+#include <glad/glad.h>
 #include <vector>
 
-class SpectrumBuffer : public Buffer {
+class SpectrumBuffer : public CpuBuffer {
 public:
 	SpectrumBuffer(PipelineIO type, uint width, uint height);
 
-	void prepareToDisplay() override;
+	void passToGPU(GLuint texId) override;
 
+	// data
 	std::vector<Spectrum> m_data;
-
 };

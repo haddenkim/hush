@@ -91,11 +91,7 @@ void Viewer::guiMainMenuFramebuffer()
 {
 	if (ImGui::BeginMenu("Display")) {
 
-		for (uint i = 0; i < m_activePipeline->m_buffers.size(); i++) {
-			if (ImGui::Selectable(PipelineIONames[m_activePipeline->m_bufferTypes[i]], m_activePipeline->m_displayedBufferIndex == i)) {
-				m_activePipeline->selectDrawBuffer(i);
-			}
-		}
+		m_activePipeline->guiFramebuffer();
 
 		ImGui::EndMenu();
 	}

@@ -4,7 +4,7 @@
 class Scene;
 class Camera;
 class Pipeline;
-class Buffer;
+class GpuBuffer;
 
 class RasterGBufferPass : public GlPass {
 public:
@@ -23,8 +23,8 @@ protected:
 	void setupMeshTextures();
 
 	// inputs
-	Scene* m_scene;
-	Camera* m_camera;
+	const Scene* m_scene;
+	const Camera* m_camera;
 
 	size_t m_numMeshes;
 	float* m_numMeshFaces;
@@ -32,9 +32,9 @@ protected:
 	GLuint* m_texDiffuse; // model material texture
 
 	// outputs
-	Buffer* m_positionBuffer;
-	Buffer* m_normalBuffer;
-	Buffer* m_matAmbientBuffer;
-	Buffer* m_matDiffuseBuffer;
-	Buffer* m_matSpecularBuffer;
+	GpuBuffer* m_positionBuffer;
+	GpuBuffer* m_normalBuffer;
+	GpuBuffer* m_matAmbientBuffer;
+	GpuBuffer* m_matDiffuseBuffer;
+	GpuBuffer* m_matSpecularBuffer;
 };

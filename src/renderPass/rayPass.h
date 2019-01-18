@@ -13,8 +13,4 @@ public:
 	// UI
 	virtual bool guiEdit() = 0;
 
-protected:
-	// setup helpers
-
-	
 };

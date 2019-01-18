@@ -2,6 +2,11 @@
 #include <bitset>
 #include <cassert>
 
+enum PipelineHW {
+	CPU,
+	GPU
+};
+
 enum PipelineIO {
 	// Camera
 	CAM_POSITION,
@@ -74,4 +79,4 @@ static const char* PipelineIONames[] = {
 typedef std::bitset<NUM_PIPELINE_IO> PipelineIOMask;
 
 // assert that the size of names is the number of enum values
-static_assert(NUM_PIPELINE_IO == sizeof(PipelineIONames)/sizeof(*PipelineIONames));
+static_assert(NUM_PIPELINE_IO == sizeof(PipelineIONames)/sizeof(*PipelineIONames), "PipelineIO and PipelineIONames not same size.");

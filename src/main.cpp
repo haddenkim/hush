@@ -34,10 +34,10 @@ int main(int argc, char** argv)
 	Viewer viewer(WINDOW_WIDTH, WINDOW_HEIGHT, &scene, &camera);
 
 	// initialize pipelines
-	Pipeline simpleRaster(&scene, &camera, { RASTER_GBUFFER, SS_DIRECT_LIGHT, SS_AMBIENT });
+	Pipeline simpleRaster(&scene, &camera, { RASTER_GBUFFER, SS_DIRECT_LIGHT, SS_AMBIENT, TO_SCREEN });
 	viewer.addPipeline(&simpleRaster);
 
-	Pipeline pathTracer(&scene, &camera, { RT_FULL_GI });
+	Pipeline pathTracer(&scene, &camera, { RT_FULL_GI, TO_SCREEN });
 	viewer.addPipeline(&pathTracer);
 
 	// start rendering

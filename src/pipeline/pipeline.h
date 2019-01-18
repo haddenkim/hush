@@ -2,6 +2,7 @@
 #include "common.h"
 #include "gui/iGuiEditable.h"
 #include "pipeline/pipelineIO.h"
+#include "pipelineBuffer/bufferManager.h"
 #include "renderPass/renderPass.h"
 #include <glad/glad.h>
 #include <initializer_list>
@@ -15,36 +16,33 @@ class Pipeline : public IGuiEditable {
 public:
 	Pipeline(Scene* scene, Camera* camera, std::initializer_list<RenderPassType> passes);
 
+	/* rendering */
 	void render();
-	void drawToScreen();
-	void selectDrawBuffer(uint index);
 
-	// modification
+	/* Stages, Passes */
 	void addPass(RenderPassType type, int position = -1);
-	Buffer* getOrCreateBuffer(PipelineIO type, bool isCPU = false);
-
 	std::vector<RenderPass*> m_passes;
 
-	std::vector<Buffer*> m_buffers;
-	std::vector<PipelineIO> m_bufferTypes;
+	/* Buffers */
+	BufferManager m_bufferManager;
+
+	/* draw to screen */
 	uint m_displayedBufferIndex;
-
-	// renderer settings
-	uint m_width;
-	uint m_height;
-
-	// opengl
-	GLuint m_displayColorShader;
 	GLuint m_canvasVAO;
-
-	Scene* m_scene;
-	Camera* m_camera;
 
 	// UI
 	bool guiEdit() override;
+	void guiFramebuffer();
+
+	// state
+	const uint m_width;
+	const uint m_height;
+	const Scene* m_scene;
+	const Camera* m_camera;
+
 
 protected:
 	// setup helpers
-	void setupShader();
 	void setupCanvas();
+
 };

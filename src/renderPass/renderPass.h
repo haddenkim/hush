@@ -22,7 +22,10 @@ enum RenderPassType {
 	// denoising
 
 	// post processing
-	PP_TONE_MAP
+	PP_TONE_MAP,
+
+	// To screen
+	TO_SCREEN
 
 };
 

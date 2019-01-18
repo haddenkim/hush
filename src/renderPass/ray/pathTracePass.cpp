@@ -32,7 +32,7 @@ PathTracePass::PathTracePass(Pipeline* pipeline)
 	, m_height(pipeline->m_height)
 	, m_numTilesX((pipeline->m_width + TILE_SIZE - 1) / TILE_SIZE)
 	, m_numTilesY((pipeline->m_height + TILE_SIZE - 1) / TILE_SIZE)
-	, m_rtColorBuffer(static_cast<SpectrumBuffer*>(pipeline->getOrCreateBuffer(RT_COLOR, true)))
+	, m_rtColorBuffer(pipeline->m_bufferManager.requestSpectrumBuffer(RT_COLOR))
 {
 
 	// initial settings
@@ -51,9 +51,6 @@ void PathTracePass::render()
 	tbb::parallel_for(size_t(0), size_t(m_numTilesX * m_numTilesY), [&](size_t i) {
 		renderTile(i);
 	});
-
-	// flag buffer as dirty
-	m_rtColorBuffer->m_isReadyToDisplay = false;
 }
 
 void PathTracePass::renderTile(const uint index)
@@ -408,6 +405,3 @@ bool PathTracePass::testNotOcclusion(const Vec3f& origin, const Vec3f& direction
 	return shadowRay.tfar > 0;
 }
 
-bool PathTracePass::guiEdit()
-{
-}

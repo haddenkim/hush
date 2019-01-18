@@ -20,9 +20,10 @@ public:
 	void addPipeline(Pipeline* pipeline);
 	void start();
 
+	static GLFWwindow* Window;
+
 private:
 	// window
-	static GLFWwindow* Window;
 	int m_windowWidth;
 	int m_windowHeight;
 

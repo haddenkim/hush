@@ -3,6 +3,7 @@
 #include "renderPass/raster/ssAmbientPass.h"
 #include "renderPass/raster/ssLightPass.h"
 #include "renderPass/ray/pathTracePass.h"
+#include "renderPass/renderToScreenPass.h"
 
 #include "pipeline/pipeline.h"
 #include "pipelineBuffer/buffer.h"
@@ -38,6 +39,10 @@ RenderPass* RenderPass::create(RenderPassType type, Pipeline* pipeline)
 
 	case RT_FULL_GI:
 		pass = new PathTracePass(pipeline);
+		break;
+
+	case TO_SCREEN:
+		pass = new RenderToScreenPass(pipeline);
 		break;
 
 	default:

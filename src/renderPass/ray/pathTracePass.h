@@ -51,8 +51,8 @@ protected:
 	Spectrum sampleBsdf(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler);
 
 	// inputs
-	Scene* m_scene;
-	Camera* m_camera;
+	const Scene* m_scene;
+	const Camera* m_camera;
 
 	// data, state
 	const uint m_width;

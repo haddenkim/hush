@@ -1,4 +1,5 @@
 #include "pipeline/pipeline.h"
+#include "pipelineBuffer/buffer.h"
 #include "renderPass/renderPass.h"
 
 bool Pipeline::guiEdit()
@@ -22,7 +23,7 @@ bool Pipeline::guiEdit()
 			// input list
 			for (uint i = 0; i < renderPass->m_inputs.size(); ++i) {
 				if (renderPass->m_inputs[i]) {
-					ImGui::Text(PipelineIONames[i]);
+					ImGui::Text("%s",PipelineIONames[i]);
 				}
 			}
 			ImGui::NextColumn();
@@ -30,7 +31,7 @@ bool Pipeline::guiEdit()
 			// output list
 			for (uint i = 0; i < renderPass->m_outputs.size(); ++i) {
 				if (renderPass->m_outputs[i]) {
-					ImGui::Text(PipelineIONames[i]);
+					ImGui::Text("%s",PipelineIONames[i]);
 				}
 			}
 			ImGui::NextColumn();
@@ -47,4 +48,16 @@ bool Pipeline::guiEdit()
 	}
 
 	return wasModified;
+}
+
+void Pipeline::guiFramebuffer()
+{
+	for (uint i = 0; i < m_bufferManager.size(); i++) {
+		Buffer* buffer = m_bufferManager.at(i);
+		
+		std::string title (PipelineIONames[buffer->m_type] );
+		title += buffer->m_hardware == GPU ? " gpu" : " cpu";
+
+		ImGui::Selectable(title.c_str(), m_displayedBufferIndex == i);
+	}
 }

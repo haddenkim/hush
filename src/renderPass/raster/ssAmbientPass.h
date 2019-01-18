@@ -2,7 +2,7 @@
 #include "renderPass/glPass.h"
 
 class Pipeline;
-class Buffer;
+class GpuBuffer;
 
 class SsAmbientPass : public GlPass {
 public:
@@ -21,12 +21,12 @@ protected:
 	void setupFBO() override;
 
 	// inputs
-	Buffer* m_matAmbientBuffer;
-	Buffer* m_matDiffuseBuffer;
+	GpuBuffer* m_matAmbientBuffer;
+	GpuBuffer* m_matDiffuseBuffer;
 
 	// data
 	GLuint m_canvasVAO;
 
 	// outputs
-	Buffer* m_colorBuffer;
+	GpuBuffer* m_colorBuffer;
 };

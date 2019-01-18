@@ -5,21 +5,14 @@
 
 // CODEHERE enum buffer type (ex. spectrum, signed unit vector, world position)
 
-
 class Buffer {
 public:
-	static Buffer* create(PipelineIO type, uint width, uint height, bool isCPU = false);
-
-	virtual void prepareToDisplay();
-
-	const GLuint m_glId;
+	// Flags
 	const PipelineIO m_type;
-	bool m_isReadyToDisplay;
+	const PipelineHW m_hardware;
 
 protected:
-	Buffer(PipelineIO type, uint width, uint height, bool isCPU = false);
-
-	static GLuint setupGL(PipelineIO type, uint width, uint height);
+	Buffer(PipelineIO type, uint width, uint height, PipelineHW hw);
 
 	const uint m_width;
 	const uint m_height;

@@ -11,6 +11,7 @@
 
 // window properties
 GLFWwindow* Viewer::Window;
+
 Viewer::Viewer(int width, int height, Scene* scene, Camera* camera)
 	: m_windowWidth(width)
 	, m_windowHeight(height)
@@ -103,16 +104,6 @@ void Viewer::start()
 				m_isPaused = true;
 			}
 		}
-
-		/* render selected framebuffer to final window's framebuffer */
-		// collect window size - for resizing and mac retina
-		int viewPortW, viewPortH;
-		glfwGetFramebufferSize(Window, &viewPortW, &viewPortH);
-		int viewPortX = (viewPortW - viewPortH) / 2;
-		glViewport(viewPortX, 0, viewPortH, viewPortH);
-
-		// render
-		m_activePipeline->drawToScreen();
 
 		/* GUI */
 		// Poll and handle events (inputs, window resize, etc.)

@@ -1,6 +1,6 @@
 #include "renderPass/raster/ssAmbientPass.h"
 #include "pipeline/pipeline.h"
-#include "pipelineBuffer/buffer.h"
+#include "pipelineBuffer/gpuBuffer.h"
 #include "shaders/loadShader.h"
 
 SsAmbientPass::SsAmbientPass(Pipeline* pipeline)
@@ -8,9 +8,9 @@ SsAmbientPass::SsAmbientPass(Pipeline* pipeline)
 			 RASTER_GBUFFER,
 			 { COLOR, G_MAT_AMBIENT, G_MAT_DIFFUSE }, // inputs
 			 { COLOR })								  // outputs
-	, m_colorBuffer(pipeline->getOrCreateBuffer(COLOR))
-	, m_matAmbientBuffer(pipeline->getOrCreateBuffer(G_MAT_AMBIENT))
-	, m_matDiffuseBuffer(pipeline->getOrCreateBuffer(G_MAT_DIFFUSE))
+	, m_colorBuffer(pipeline->m_bufferManager.requestGpuBuffer(COLOR))
+	, m_matAmbientBuffer(pipeline->m_bufferManager.requestGpuBuffer(G_MAT_AMBIENT))
+	, m_matDiffuseBuffer(pipeline->m_bufferManager.requestGpuBuffer(G_MAT_DIFFUSE))
 	, m_canvasVAO(pipeline->m_canvasVAO)
 {
 	setupShader();
@@ -45,9 +45,9 @@ void SsAmbientPass::render()
 	glUniform1i(glGetUniformLocation(m_shader, "useDiffuse"), m_useDiffuse ? 1 : 0);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_matAmbientBuffer->m_glId);
+	glBindTexture(GL_TEXTURE_2D, m_matAmbientBuffer->m_texId);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, m_matDiffuseBuffer->m_glId);
+	glBindTexture(GL_TEXTURE_2D, m_matDiffuseBuffer->m_texId);
 
 	// draw
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -79,7 +79,7 @@ void SsAmbientPass::setupFBO()
 	glGenFramebuffers(1, &m_FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer->m_glId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer->m_texId, 0);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);

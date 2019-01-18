@@ -1,6 +1,8 @@
 #include "renderPass/raster/rasterGBufferPass.h"
 #include "renderPass/raster/ssAmbientPass.h"
 #include "renderPass/raster/ssLightPass.h"
+#include "renderPass/ray/pathTracePass.h"
+#include "renderPass/renderToScreenPass.h"
 
 bool RasterGBufferPass::guiEdit()
 {
@@ -30,4 +32,12 @@ bool SsAmbientPass::guiEdit()
 	ImGui::Checkbox("Use diffuse material?", &m_useDiffuse);
 
 	return wasModified;
+}
+
+bool PathTracePass::guiEdit()
+{
+}
+
+bool RenderToScreenPass::guiEdit()
+{
 }

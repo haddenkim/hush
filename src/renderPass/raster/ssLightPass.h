@@ -4,7 +4,7 @@
 class Scene;
 class Camera;
 class Pipeline;
-class Buffer;
+class GpuBuffer;
 
 class SsLightPass : public GlPass {
 public:
@@ -20,16 +20,16 @@ protected:
 	void setupFBO() override;
 
 	// inputs
-	Scene* m_scene;
-	Camera* m_camera;
-	Buffer* m_positionBuffer;
-	Buffer* m_normalBuffer;
-	Buffer* m_matDiffuseBuffer;
-	Buffer* m_matSpecularBuffer;
+	const Scene* m_scene;
+	const Camera* m_camera;
+	GpuBuffer* m_positionBuffer;
+	GpuBuffer* m_normalBuffer;
+	GpuBuffer* m_matDiffuseBuffer;
+	GpuBuffer* m_matSpecularBuffer;
 
 	// data
 	GLuint m_canvasVAO;
 
 	// outputs
-	Buffer* m_colorBuffer;
+	GpuBuffer* m_colorBuffer;
 };
