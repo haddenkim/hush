@@ -58,6 +58,9 @@ void Pipeline::guiFramebuffer()
 		std::string title (PipelineIONames[buffer->m_type] );
 		title += buffer->m_hardware == GPU ? " gpu" : " cpu";
 
-		ImGui::Selectable(title.c_str(), m_displayedBufferIndex == i);
+		if(ImGui::Selectable(title.c_str(), m_displayedBufferIndex == i))
+		{
+			m_displayedBufferIndex = i;
+		}
 	}
 }
