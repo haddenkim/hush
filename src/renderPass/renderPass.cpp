@@ -1,4 +1,5 @@
 #include "renderPass.h"
+#include "renderPass/denoise/atrousDenoiserPass.h"
 #include "renderPass/raster/rasterGBufferPass.h"
 #include "renderPass/raster/ssAmbientPass.h"
 #include "renderPass/raster/ssLightPass.h"
@@ -40,6 +41,9 @@ RenderPass* RenderPass::create(RenderPassType type, Pipeline* pipeline)
 	case RT_FULL_GI:
 		pass = new PathTracePass(pipeline);
 		break;
+
+	case DENOISE_ATROUS:
+		pass = new AtrousDenoiserPass(pipeline);
 
 	case TO_SCREEN:
 		pass = new RenderToScreenPass(pipeline);

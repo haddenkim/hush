@@ -45,8 +45,10 @@ Buffer* BufferManager::create(PipelineIO type, PipelineHW hw)
 		buffer = new GpuBuffer(type, m_width, m_height);
 	}
 	// CPU buffers
-	else if (type == RT_COLOR) {
+	else if (type == RT_COLOR || type == TEMP_COLOR) {
 		buffer = new SpectrumBuffer(type, m_width, m_height);
+	} else {
+		assert(!"not yet implemented buffer type+hw combo");
 	}
 
 	m_buffers.push_back(buffer);

@@ -11,7 +11,7 @@
 
 int main(int argc, char** argv)
 {
-	if(argc < 2) {
+	if (argc < 2) {
 		// CODEHERE - proper cmd line parser
 		// CODEHERE - print usage message
 		return 0;
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	Pipeline simpleRaster(&scene, &camera, { RASTER_GBUFFER, SS_DIRECT_LIGHT, SS_AMBIENT, TO_SCREEN });
 	viewer.addPipeline(&simpleRaster);
 
-	Pipeline pathTracer(&scene, &camera, { RT_FULL_GI, TO_SCREEN });
+	Pipeline pathTracer(&scene, &camera, { RT_FULL_GI, DENOISE_ATROUS, TO_SCREEN });
 	viewer.addPipeline(&pathTracer);
 
 	// start rendering

@@ -20,6 +20,7 @@ enum RenderPassType {
 	SS_AMBIENT,
 
 	// denoising
+	DENOISE_ATROUS,
 
 	// post processing
 	PP_TONE_MAP,

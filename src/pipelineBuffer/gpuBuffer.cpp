@@ -1,7 +1,7 @@
 #include "gpuBuffer.h"
 
 GpuBuffer::GpuBuffer(PipelineIO type, uint width, uint height)
-	: Buffer(type, width, height, GPU)\
+	: Buffer(type, width, height, GPU)
 	, m_texId(setupTexture(type, width, height))
 {
 }
@@ -20,6 +20,7 @@ GLuint GpuBuffer::setupTexture(PipelineIO type, uint width, uint height)
 	case LIGHT_INDIRECT:
 	case RT_COLOR:
 	case COLOR:
+	case TEMP_COLOR:
 		format = GL_RGB;
 		break;
 

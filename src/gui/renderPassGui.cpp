@@ -1,3 +1,4 @@
+#include "renderPass/denoise/atrousDenoiserPass.h"
 #include "renderPass/raster/rasterGBufferPass.h"
 #include "renderPass/raster/ssAmbientPass.h"
 #include "renderPass/raster/ssLightPass.h"
@@ -35,6 +36,10 @@ bool SsAmbientPass::guiEdit()
 }
 
 bool PathTracePass::guiEdit()
+{
+}
+
+bool AtrousDenoiserPass::guiEdit()
 {
 }
 
