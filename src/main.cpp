@@ -11,6 +11,12 @@
 
 int main(int argc, char** argv)
 {
+	if(argc < 2) {
+		// CODEHERE - proper cmd line parser
+		// CODEHERE - print usage message
+		return 0;
+	}
+
 	Scene scene;
 	Obj2scene::LoadScene(&scene, argv[1]);
 	scene.setupAdditionalLights();
