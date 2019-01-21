@@ -1,27 +1,32 @@
 # hush
 Hush is an interactive path tracer renderer with denoising. It renders static scenes with an interactive camera. 
 
-Hush follows the path tracing theory from [PBRT](http://www.pbr-book.org/) and denoising theory from various research papers (linked below).
+Hush organizes modular render passes in a pipeline architecture. Both CPU and GPU passes can combine to make hybrid rendering pipelines. The modularity and buffer abstraction allows for experimentation and development of new passes and pipelines. Each render pass can configure its necessary input buffers from any previous output buffer of the same type.
 
-I am building this project to learn and implement path tracing and denoising concepts.
+Hush also provides a GUI. Hush can run-time modify rendering settings to further experiment and learn how rendering strategies and choices affect framerate and image quality.
+
+The primary goal this project is to learn and implement path tracing and denoising concepts. Though the objective is still interctive (10 fps) framerates, the implementation approach trades performance for GUI features and ease of understanding.
 
 ## TODO / Features
 * Rendering Strategies
   * [x] Rasterization with OpenGL (Bare-bones deferred shading: no shadows, only point lights, phong shading)
-  * [x] CPU Path Tracing (Backwards, Monte-Carlo, Multiple Importance Sampling on Light and BSDF)
-  * [ ] GPU Path Tracing
+  * [x] CPU Path Tracing with GPU denoising
+  * [ ] GPU Path Tracing with GPU denoising
   
 * Denoising Strategies
   * [x] [Edge-Avoiding A-Trous Wavelet Transform](https://jo.dreggn.org/home/2010_atrous.pdf)
   * [ ] [Mara, McGuire, Bitterli, Jarosz](https://cs.dartmouth.edu/wjarosz/publications/mara17towards.html)
   * [ ] [Spatiotemporal Variance-Guided Filtering](https://cg.ivd.kit.edu/svgf.php)
   
-* Sampling Strategies
-  * [x] std library
-  * [ ] Proper uniform sampler
-  * [ ] Stratefied
-  * [ ] Halton
-  * [ ] Sobol
+* Pipeline GUI
+  * [x] Select output buffer to display
+  * [ ] Pipeline flow graph
+
+* Scene
+  * [x] Load obj scene files
+  * [x] GUI Enable / Disable mesh
+  * [ ] GUI Add / Edit / Disable lights
+  * [ ] GUI Edit material properties and BSDF model
   
 * Lights
   * [x] Point
@@ -37,15 +42,9 @@ I am building this project to learn and implement path tracing and denoising con
   * [x] Diffuse Textures
   * [ ] Bump Map
   
-* GUI
-  * [ ] Load scene files
-  * [x] Enable / Disable mesh
-  * [ ] Add / Edit lights
-  * [ ] Edit material properties and BSDF model
-  * [ ] Variable rendering resolution (currently locked 512x512)
-  * [ ] Pipeline / Shader Graph
-
 * Other
+  * [ ] Alternative sampling strategies (ex. Halton, Sobol)
+  * [ ] Variable rendering resolution (currently locked 512x512)
   * [ ] Benchmarking (some sort of image quality metric. maybe compare to a reference image)
   * [ ] Asynchronous rendering (continuously render framebuffer and not block GUI)
 
