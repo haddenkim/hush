@@ -19,8 +19,9 @@ The primary goal this project is to learn and implement path tracing and denoisi
   * [ ] [Spatiotemporal Variance-Guided Filtering](https://cg.ivd.kit.edu/svgf.php)
   
 * Pipeline GUI
-  * [x] Select output buffer to display
+  * [x] Selectable output buffer to display
   * [ ] Pipeline flow graph
+  * [ ] Framerate with per-pass details
 
 * Scene
   * [x] Load obj scene files
