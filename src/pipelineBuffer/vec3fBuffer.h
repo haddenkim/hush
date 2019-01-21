@@ -8,5 +8,7 @@ public:
 
 	void passToGPU(GLuint texId) override;
 
+	void clear() override;
+
 	std::vector<Vec3f> m_data;
 };

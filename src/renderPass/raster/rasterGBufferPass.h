@@ -8,7 +8,15 @@ class GpuBuffer;
 
 class RasterGBufferPass : public GlPass {
 public:
-	RasterGBufferPass(Pipeline* pipeline);
+	RasterGBufferPass(Scene* scene,
+					  Camera* camera,
+
+					  GpuBuffer* positionBuffer,
+					  GpuBuffer* normalBuffer,
+					  GpuBuffer* matAmbientBuffer,
+					  GpuBuffer* matDiffuseBuffer,
+					  GpuBuffer* matSpecularBuffer
+	);
 
 	void render() override;
 	// UI

@@ -6,7 +6,12 @@ class GpuBuffer;
 
 class AtrousDenoiserPass : public GlPass {
 public:
-	AtrousDenoiserPass(Pipeline* pipeline);
+	AtrousDenoiserPass(GpuBuffer* rtColorBuffer,
+					   GpuBuffer* positionBuffer,
+					   GpuBuffer* normalBuffer,
+					   float resolution,
+					   GLuint canvasVAO,
+					   GpuBuffer* colorBuffer);
 
 	void render() override;
 
@@ -27,11 +32,11 @@ protected:
 	GpuBuffer* m_rtColorBuffer;
 	GpuBuffer* m_positionBuffer;
 	GpuBuffer* m_normalBuffer;
-	const float m_resolution;
 
 	// data
-	GLuint m_canvasVAO;
-	GpuBuffer* m_tempColorBuffer;
+	const float m_resolution;
+	const GLuint m_canvasVAO;
+	GLuint m_tempColorBuffer;
 
 	// outputs
 	GpuBuffer* m_colorBuffer;

@@ -20,42 +20,6 @@ RenderPass::RenderPass(std::string name,
 {
 }
 
-RenderPass* RenderPass::create(RenderPassType type, Pipeline* pipeline)
-{
-
-	RenderPass* pass;
-
-	switch (type) {
-	case RASTER_GBUFFER:
-		pass = new RasterGBufferPass(pipeline);
-		break;
-
-	case SS_DIRECT_LIGHT:
-		pass = new SsLightPass(pipeline);
-		break;
-
-	case SS_AMBIENT:
-		pass = new SsAmbientPass(pipeline);
-		break;
-
-	case RT_FULL_GI:
-		pass = new PathTracePass(pipeline);
-		break;
-
-	case DENOISE_ATROUS:
-		pass = new AtrousDenoiserPass(pipeline);
-
-	case TO_SCREEN:
-		pass = new RenderToScreenPass(pipeline);
-		break;
-
-	default:
-		assert(!"The default case of switch was reached.");
-		break;
-	}
-
-	return pass;
-}
 
 PipelineIOMask RenderPass::createIOMask(std::initializer_list<PipelineIO> ios)
 {

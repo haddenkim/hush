@@ -1,8 +1,9 @@
 #pragma once
 #include "common.h"
 #include "gui/iGuiEditable.h"
+// #include "pipeline/pipelineBuilder.h"
 #include "pipeline/pipelineIO.h"
-#include "pipelineBuffer/bufferManager.h"
+
 #include "renderPass/renderPass.h"
 #include <glad/glad.h>
 #include <initializer_list>
@@ -11,23 +12,38 @@
 class Scene;
 class Camera;
 class Buffer;
+class BufferSync;
+struct BuildPipeline;
+
+struct PipelineIOLink {
+	uint m_fromStage;
+	uint m_fromPass;
+	// uint toStage;
+	// uint toPass;
+	std::vector<PipelineIO> m_types;
+};
+
+struct PipelinePass {
+	RenderPass* m_renderPass;
+	std::vector<Buffer*> m_buffers;
+	std::vector<PipelineIOLink> m_links;
+};
+
+struct PipelineStage {
+	std::vector<BufferSync*> m_bufferSyncs;
+
+	std::vector<PipelinePass> m_passes;
+};
 
 class Pipeline : public IGuiEditable {
 public:
-	Pipeline(Scene* scene, Camera* camera, std::initializer_list<RenderPassType> passes);
+	Pipeline(const BuildPipeline& buildPipeline);
 
 	/* rendering */
 	void render();
 
-	/* Stages, Passes */
-	void addPass(RenderPassType type, int position = -1);
-	std::vector<RenderPass*> m_passes;
-
-	/* Buffers */
-	BufferManager m_bufferManager;
-
 	/* draw to screen */
-	uint m_displayedBufferIndex;
+	Buffer* m_displayBuffer;
 	GLuint m_canvasVAO;
 
 	// UI
@@ -35,14 +51,13 @@ public:
 	void guiFramebuffer();
 
 	// state
-	const uint m_width;
-	const uint m_height;
-	const Scene* m_scene;
-	const Camera* m_camera;
-
+	uint m_width;
+	uint m_height;
+	Scene* m_scene;
+	Camera* m_camera;
+	std::vector<PipelineStage> m_stages;
 
 protected:
 	// setup helpers
 	void setupCanvas();
-
 };

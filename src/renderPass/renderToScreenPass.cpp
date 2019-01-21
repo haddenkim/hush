@@ -2,20 +2,25 @@
 
 #include "app/viewer.h"
 #include "pipeline/pipeline.h"
-#include "pipelineBuffer/bufferManager.h"
 #include "shaders/loadShader.h"
 
-RenderToScreenPass::RenderToScreenPass(Pipeline* pipeline)
+#include "pipelineBuffer/buffer.h"
+#include "pipelineBuffer/bufferSync.h"
+#include "pipelineBuffer/cpuBuffer.h"
+#include "pipelineBuffer/gpuBuffer.h"
+#include "pipelineBuffer/spectrumBuffer.h"
+
+RenderToScreenPass::RenderToScreenPass(Buffer** displayBuffer,
+									   GLuint canvasVAO)
 	: RenderPass("Draw To Screen",
 				 TO_SCREEN,
 				 {}, // inputs
 				 {}) // outputs
-	, m_canvasVAO(pipeline->m_canvasVAO)
-	, m_bufferManager(&pipeline->m_bufferManager)
-	, m_displayedBufferIndex(&pipeline->m_displayedBufferIndex)
+	, m_displayBuffer(displayBuffer)
+	, m_canvasVAO(canvasVAO)
 {
 	setupShader();
-
+	setupCpuTexture();
 }
 
 void RenderToScreenPass::render()
@@ -28,18 +33,28 @@ void RenderToScreenPass::render()
 	int viewPortX = (viewPortW - viewPortH) / 2;
 	glViewport(viewPortX, 0, viewPortH, viewPortH);
 
-	// gets the buffer to display
-	GLuint texId = m_bufferManager->getGlTextureId(*m_displayedBufferIndex);
-
 	// selects the shader to draw
-	glUseProgram(m_displayColorShader);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // draw to the window FBO
 	glBindVertexArray(m_canvasVAO);		  // draw on the canvas quad
 
-	// pass to GPU
+	// get and pre-process buffer
+	Buffer* displayBuffer = m_displayBuffer[0];
+	GLuint displayTex;
+
+	if (displayBuffer->m_hardware == GPU) {
+		displayTex = static_cast<GpuBuffer*>(displayBuffer)->m_texId;
+	} else {
+		static_cast<CpuBuffer*>(displayBuffer)->passToGPU(m_displayCPUBufferTexId);
+		displayTex = m_displayCPUBufferTexId;
+	}
+
+	// select and use shader
+	glUseProgram(selectShader());
+
+	// uniform
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texId);
+	glBindTexture(GL_TEXTURE_2D, displayTex);
 
 	// draw to canvas
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -60,4 +75,17 @@ void RenderToScreenPass::setupShader()
 
 	// unbind
 	glUseProgram(0);
+}
+
+void RenderToScreenPass::setupCpuTexture()
+{
+	glGenTextures(1, &m_displayCPUBufferTexId);
+	glBindTexture(GL_TEXTURE_2D, m_displayCPUBufferTexId);
+	// paramaters and data will be set by CpuBuffer.passToGPU calls
+}
+
+GLuint RenderToScreenPass::selectShader()
+{
+	// CODEHERE - different shaders to adjust various data types (ex. normals -> RGB representation)
+	return m_displayColorShader;
 }

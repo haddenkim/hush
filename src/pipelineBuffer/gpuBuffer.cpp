@@ -18,9 +18,7 @@ GLuint GpuBuffer::setupTexture(PipelineIO type, uint width, uint height)
 	case G_MAT_DIFFUSE:
 	case LIGHT_DIRECT:
 	case LIGHT_INDIRECT:
-	case RT_COLOR:
 	case COLOR:
-	case TEMP_COLOR:
 		format = GL_RGB;
 		break;
 

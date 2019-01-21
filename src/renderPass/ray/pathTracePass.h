@@ -6,6 +6,7 @@ class Scene;
 class Camera;
 class Buffer;
 class SpectrumBuffer;
+class Vec3fBuffer;
 class SurfaceInteraction;
 class Sampler;
 class Light;
@@ -17,20 +18,25 @@ enum DirectLightStrategy : int {
 
 class PathTracePass : public RayPass {
 public:
-	PathTracePass(Pipeline* pipeline);
+	PathTracePass(Scene* scene,
+				  Camera* camera,
+				  uint width,
+				  uint height,
+				  SpectrumBuffer* rtColorBuffer,
+				  Vec3fBuffer* positionBuffer,
+				  Vec3fBuffer* normalBuffer,
+				  SpectrumBuffer* matDiffuseBuffer);
 
 	void render() override;
 
 	// UI
 	bool guiEdit() override;
-	// renderer settings
 
+	// renderer settings
 	uint m_samplesPerPixel;
 	bool m_jitterPrimaryRays;
-
 	DirectLightStrategy m_directLightStrategy;
 	uint m_samplesPerLight;
-
 	uint m_maxDepth;
 	float m_minContribution;
 
@@ -50,6 +56,9 @@ protected:
 	Spectrum sampleLight(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler);
 	Spectrum sampleBsdf(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler);
 
+	void clearBuffers();
+	void fillAdditionalBuffers(const SurfaceInteraction& surfaceInteraction, const uint bufferIndex);
+
 	// inputs
 	const Scene* m_scene;
 	const Camera* m_camera;
@@ -62,8 +71,7 @@ protected:
 
 	// outputs
 	SpectrumBuffer* m_rtColorBuffer;
-	// Buffer* m_normalBuffer;
-	// Buffer* m_matAmbientBuffer;
-	// Buffer* m_matDiffuseBuffer;
-	// Buffer* m_matSpecularBuffer;
+	Vec3fBuffer* m_positionBuffer;
+	Vec3fBuffer* m_normalBuffer;
+	SpectrumBuffer* m_matDiffuseBuffer;
 };

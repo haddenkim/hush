@@ -1,48 +1,33 @@
 #include "pipeline.h"
 #include "camera/camera.h"
+#include "pipeline/pipelineBuilder.h"
 #include "pipelineBuffer/buffer.h"
+#include "pipelineBuffer/bufferSync.h"
 #include "pipelineBuffer/gpuBuffer.h"
-
 #include "renderPass/renderPass.h"
 #include "shaders/loadShader.h"
 #include <glad/glad.h>
 
-Pipeline::Pipeline(Scene* scene, Camera* camera, std::initializer_list<RenderPassType> passes)
-	: m_scene(scene)
-	, m_camera(camera)
-	, m_width(camera->m_width)
-	, m_height(camera->m_height)
-	, m_bufferManager(camera->m_width, camera->m_height)
-
+Pipeline::Pipeline(const BuildPipeline& buildPipeline)
 {
 	setupCanvas();
 
-	for (RenderPassType passType : passes) {
-		addPass(passType);
-	}
-
-	// initial settings
-	m_displayedBufferIndex = m_bufferManager.size() - 1; // last buffer
+	PipelineBuilder(*this).createPipeline(buildPipeline);
 }
 
 void Pipeline::render()
 {
-	for (RenderPass* pass : m_passes) {
-		pass->render();
-	}
-}
 
-void Pipeline::addPass(RenderPassType type, int position)
-{
-	RenderPass* newPass = RenderPass::create(type, this);
+	for (const PipelineStage& stage : m_stages) {
+		for (BufferSync* bufferSync : stage.m_bufferSyncs) {
+			bufferSync->sync();
+		}
+		glFinish();
 
-	if (position < 0) {
-		m_passes.push_back(newPass);
-
-	}
-	// CODEHERE add passes in position
-	else {
-		assert(!"Not yet implemented");
+		for (const PipelinePass& pass : stage.m_passes) {
+			pass.m_renderPass->render();
+		}
+		glFinish();
 	}
 }
 

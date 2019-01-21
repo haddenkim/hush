@@ -9,6 +9,8 @@ public:
 
 	void passToGPU(GLuint texId) override;
 
+	void clear() override;
+
 	// data
 	std::vector<Spectrum> m_data;
 };

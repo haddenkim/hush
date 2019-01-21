@@ -3,15 +3,20 @@
 #include "pipelineBuffer/gpuBuffer.h"
 #include "shaders/loadShader.h"
 
-SsAmbientPass::SsAmbientPass(Pipeline* pipeline)
+SsAmbientPass::SsAmbientPass(GpuBuffer* inColoBuffer,
+							 GpuBuffer* matAmbientBuffer,
+							 GpuBuffer* matDiffuseBuffer,
+							 GLuint canvasVAO,
+							 GpuBuffer* outColoBuffer)
 	: GlPass("Screen Space Ambient Lighting",
 			 RASTER_GBUFFER,
 			 { COLOR, G_MAT_AMBIENT, G_MAT_DIFFUSE }, // inputs
 			 { COLOR })								  // outputs
-	, m_colorBuffer(pipeline->m_bufferManager.requestGpuBuffer(COLOR))
-	, m_matAmbientBuffer(pipeline->m_bufferManager.requestGpuBuffer(G_MAT_AMBIENT))
-	, m_matDiffuseBuffer(pipeline->m_bufferManager.requestGpuBuffer(G_MAT_DIFFUSE))
-	, m_canvasVAO(pipeline->m_canvasVAO)
+	, m_inColorBuffer(inColoBuffer)
+	, m_matAmbientBuffer(matAmbientBuffer)
+	, m_matDiffuseBuffer(matDiffuseBuffer)
+	, m_outColorBuffer(outColoBuffer)
+	, m_canvasVAO(canvasVAO)
 {
 	setupShader();
 	setupFBO();
@@ -32,12 +37,6 @@ void SsAmbientPass::render()
 	// use program
 	glUseProgram(m_shader);
 
-	// blending
-	// CODEHERE - accurate blending function
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_ONE, GL_ONE);
-
 	glBindVertexArray(m_canvasVAO);
 
 	// load uniforms
@@ -45,15 +44,16 @@ void SsAmbientPass::render()
 	glUniform1i(glGetUniformLocation(m_shader, "useDiffuse"), m_useDiffuse ? 1 : 0);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_matAmbientBuffer->m_texId);
+	glBindTexture(GL_TEXTURE_2D, m_inColorBuffer->m_texId);
 	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_matAmbientBuffer->m_texId);
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, m_matDiffuseBuffer->m_texId);
 
 	// draw
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	// unbind, reset
-	glDisable(GL_BLEND);
 	glBindVertexArray(0);
 	glUseProgram(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -67,8 +67,9 @@ void SsAmbientPass::setupShader()
 
 	// uniforms
 	glUseProgram(m_shader);
-	glUniform1i(glGetUniformLocation(m_shader, "gAmbient"), 0);
-	glUniform1i(glGetUniformLocation(m_shader, "gDiffuse"), 1);
+	glUniform1i(glGetUniformLocation(m_shader, "inColor"), 0);
+	glUniform1i(glGetUniformLocation(m_shader, "gAmbient"), 1);
+	glUniform1i(glGetUniformLocation(m_shader, "gDiffuse"), 2);
 
 	// unbind
 	glUseProgram(0);
@@ -79,7 +80,7 @@ void SsAmbientPass::setupFBO()
 	glGenFramebuffers(1, &m_FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer->m_texId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_outColorBuffer->m_texId, 0);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);

@@ -8,7 +8,14 @@ class GpuBuffer;
 
 class SsLightPass : public GlPass {
 public:
-	SsLightPass(Pipeline* pipeline);
+	SsLightPass(Scene* scene,
+				Camera* camera,
+				GpuBuffer* m_positionBuffer,
+				GpuBuffer* m_normalBuffer,
+				GpuBuffer* m_matDiffuseBuffer,
+				GpuBuffer* m_matSpecularBuffer,
+				GLuint canvasVAO,
+				GpuBuffer* m_colorBuffer);
 
 	void render() override;
 	// UI
@@ -28,7 +35,7 @@ protected:
 	GpuBuffer* m_matSpecularBuffer;
 
 	// data
-	GLuint m_canvasVAO;
+	const GLuint m_canvasVAO;
 
 	// outputs
 	GpuBuffer* m_colorBuffer;

@@ -43,11 +43,6 @@ enum PipelineIO {
 	LIGHT_DIRECT,
 	LIGHT_INDIRECT,
 
-	RT_COLOR,
-
-	// Filter
-	TEMP_COLOR,
-
 	// Constructed color
 	COLOR,
 
@@ -55,6 +50,11 @@ enum PipelineIO {
 };
 
 // CODEHERE - replace with pretty strings
+static const char* PipelineHWNames[] = {
+	"CPU",
+	"GPU"
+};
+
 static const char* PipelineIONames[] = {
 	"CAM_POSITION",
 	"CAM_DIRECTION",
@@ -75,12 +75,11 @@ static const char* PipelineIONames[] = {
 	"G_MAT_TRANSMISSIVE",
 	"LIGHT_DIRECT",
 	"LIGHT_INDIRECT",
-	"RT_COLOR",
-	"TEMP_COLOR",
+
 	"COLOR",
 };
 
 typedef std::bitset<NUM_PIPELINE_IO> PipelineIOMask;
 
 // assert that the size of names is the number of enum values
-static_assert(NUM_PIPELINE_IO == sizeof(PipelineIONames)/sizeof(*PipelineIONames), "PipelineIO and PipelineIONames not same size.");
+static_assert(NUM_PIPELINE_IO == sizeof(PipelineIONames) / sizeof(*PipelineIONames), "PipelineIO and PipelineIONames not same size.");

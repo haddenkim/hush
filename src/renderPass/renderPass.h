@@ -3,32 +3,11 @@
 #include "common.h"
 #include "gui/iGuiEditable.h"
 #include "pipeline/pipelineIO.h"
+#include "renderPass/renderPassType.h"
 #include <initializer_list>
 #include <string>
 
 class Pipeline;
-
-enum RenderPassType {
-	// rasterization
-	RASTER_GBUFFER,
-
-	// ray trace
-	RT_FULL_GI,
-
-	// screen space
-	SS_DIRECT_LIGHT,
-	SS_AMBIENT,
-
-	// denoising
-	DENOISE_ATROUS,
-
-	// post processing
-	PP_TONE_MAP,
-
-	// To screen
-	TO_SCREEN
-
-};
 
 class RenderPass : public IGuiEditable {
 public:
@@ -36,7 +15,7 @@ public:
 			   RenderPassType type,
 			   std::initializer_list<PipelineIO> inputs,
 			   std::initializer_list<PipelineIO> outputs);
-	static RenderPass* create(RenderPassType type, Pipeline* pipeline);
+
 	static PipelineIOMask createIOMask(std::initializer_list<PipelineIO> ios);
 
 	virtual void render() = 0;

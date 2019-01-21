@@ -6,7 +6,11 @@ class GpuBuffer;
 
 class SsAmbientPass : public GlPass {
 public:
-	SsAmbientPass(Pipeline* pipeline);
+	SsAmbientPass(GpuBuffer* inColoBuffer,
+				  GpuBuffer* matAmbientBuffer,
+				  GpuBuffer* matDiffuseBuffer,
+				  GLuint canvasVAO,
+				  GpuBuffer* outColoBuffer);
 
 	void render() override;
 
@@ -21,12 +25,13 @@ protected:
 	void setupFBO() override;
 
 	// inputs
+	GpuBuffer* m_inColorBuffer;
 	GpuBuffer* m_matAmbientBuffer;
 	GpuBuffer* m_matDiffuseBuffer;
 
 	// data
-	GLuint m_canvasVAO;
+	const GLuint m_canvasVAO;
 
 	// outputs
-	GpuBuffer* m_colorBuffer;
+	GpuBuffer* m_outColorBuffer;
 };

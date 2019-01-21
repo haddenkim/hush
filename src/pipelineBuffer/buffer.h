@@ -11,9 +11,9 @@ public:
 	const PipelineIO m_type;
 	const PipelineHW m_hardware;
 
+	const uint m_width;
+	const uint m_height;
 protected:
 	Buffer(PipelineIO type, uint width, uint height, PipelineHW hw);
 
-	const uint m_width;
-	const uint m_height;
 };

@@ -3,6 +3,7 @@ out vec3 FragColor;
 
 in vec2 TexCoords;
 
+uniform sampler2D inColor;
 uniform sampler2D gAmbient;
 uniform sampler2D gDiffuse;
 
@@ -22,5 +23,5 @@ void main()
 	}
 
 	// scale material by intensity
-	FragColor = matAmbient * ambientIntensity;
+	FragColor = texture(inColor, TexCoords).rgb + matAmbient * ambientIntensity;
 }

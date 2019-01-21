@@ -17,22 +17,34 @@
 
 #include "pipeline/pipeline.h"
 #include "pipelineBuffer/spectrumBuffer.h"
+#include "pipelineBuffer/vec3fBuffer.h"
 
 #define TILE_SIZE 8
 #define RAY_EPSILON 1e-5
 
-PathTracePass::PathTracePass(Pipeline* pipeline)
+PathTracePass::PathTracePass(Scene* scene,
+							 Camera* camera,
+							 uint width,
+							 uint height,
+							 SpectrumBuffer* rtColorBuffer,
+							 Vec3fBuffer* positionBuffer,
+							 Vec3fBuffer* normalBuffer,
+							 SpectrumBuffer* matDiffuseBuffer)
 	: RayPass("Path Trace",
 			  RT_FULL_GI,
-			  { CAM_POSITION, CAM_DIRECTION, MESH }, // inputs
-			  { RT_COLOR })							 // outputs
-	, m_scene(pipeline->m_scene)
-	, m_camera(pipeline->m_camera)
-	, m_width(pipeline->m_width)
-	, m_height(pipeline->m_height)
-	, m_numTilesX((pipeline->m_width + TILE_SIZE - 1) / TILE_SIZE)
-	, m_numTilesY((pipeline->m_height + TILE_SIZE - 1) / TILE_SIZE)
-	, m_rtColorBuffer(pipeline->m_bufferManager.requestSpectrumBuffer(RT_COLOR))
+			  { CAM_POSITION, CAM_DIRECTION, MESH },		  // inputs
+			  { COLOR, G_POSITION, G_NORMAL, G_MAT_DIFFUSE }) // outputs
+	, m_scene(scene)
+	, m_camera(camera)
+	, m_width(width)
+	, m_height(height)
+	, m_numTilesX((width + TILE_SIZE - 1) / TILE_SIZE)
+	, m_numTilesY((height + TILE_SIZE - 1) / TILE_SIZE)
+	, m_rtColorBuffer(rtColorBuffer)
+	, m_positionBuffer(positionBuffer)
+	, m_normalBuffer(normalBuffer)
+	, m_matDiffuseBuffer(matDiffuseBuffer)
+
 {
 
 	// initial settings
@@ -46,6 +58,7 @@ PathTracePass::PathTracePass(Pipeline* pipeline)
 
 void PathTracePass::render()
 {
+	clearBuffers();
 
 	// render tiles in parallel
 	tbb::parallel_for(size_t(0), size_t(m_numTilesX * m_numTilesY), [&](size_t i) {
@@ -142,9 +155,9 @@ Spectrum PathTracePass::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const u
 
 		// CODEHERE - investigate if g-buffer should be averaged across all samples or some other strategy
 		/* fill g-buffer for first pixel sample */
-		// if (pixelSample == 0 && bounce == 0) {
-		// 	fillAdditionalBuffers(surfaceInteraction, bufferIndex);
-		// }
+		if (pixelSample == 0 && bounce == 0) {
+			fillAdditionalBuffers(surfaceInteraction, bufferIndex);
+		}
 
 		/* possibly add emmitted light */
 		if (bounce == 0 && surfaceInteraction.m_light) {
@@ -331,6 +344,27 @@ Spectrum PathTracePass::sampleBsdf(SurfaceInteraction& surfaceInteraction, const
 	return matSample.m_albedo * lightRadiance * weight / matSample.m_pdf;
 }
 
+void PathTracePass::clearBuffers()
+{
+	// clearing color buffer here is unncesseary since every value is rewritten in renderTile
+
+	m_positionBuffer->clear();
+	m_normalBuffer->clear();
+	m_matDiffuseBuffer->clear();
+}
+
+void PathTracePass::fillAdditionalBuffers(const SurfaceInteraction& surfaceInteraction, const uint bufferIndex)
+{
+	/* position */
+	m_positionBuffer->m_data[bufferIndex] = surfaceInteraction.m_position;
+
+	/* normal */
+	m_normalBuffer->m_data[bufferIndex] = surfaceInteraction.m_normalShade;
+
+	/* diffuse */
+	m_matDiffuseBuffer->m_data[bufferIndex] = surfaceInteraction.m_diffuse;
+}
+
 void PathTracePass::setupPrimaryRay(const uint x, const uint y, RTCRayHit& rayHit, Sampler& sampler)
 {
 	// ray origin
@@ -404,4 +438,3 @@ bool PathTracePass::testNotOcclusion(const Vec3f& origin, const Vec3f& direction
 	rtcOccluded1(m_scene->m_embScene, &context, &shadowRay);
 	return shadowRay.tfar > 0;
 }
-
