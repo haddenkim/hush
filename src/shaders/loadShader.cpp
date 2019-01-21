@@ -8,17 +8,24 @@
 
 void LoadShader::checkErrors(GLuint shaderId, GLenum parameter)
 {
-	GLint Result;
-	int InfoLogLength;
+	GLint success;
+	int infoLogLength;
 
-	glGetShaderiv(shaderId, parameter, &Result);
-	glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &InfoLogLength);
-	if (InfoLogLength > 0) {
-		std::vector<char> infoLog(InfoLogLength + 1);
-		glGetShaderInfoLog(shaderId, InfoLogLength, NULL, &infoLog[0]);
+	if (parameter == GL_LINK_STATUS) {
+		glGetProgramiv(shaderId, GL_LINK_STATUS, &success);
+		glGetProgramiv(shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+	} else {
+		glGetShaderiv(shaderId, parameter, &success);
+		glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
+	}
+
+	if (infoLogLength > 0) {
+		std::vector<char> infoLog(infoLogLength + 1);
+		glGetShaderInfoLog(shaderId, infoLogLength, NULL, &infoLog[0]);
 		printf("%s\n", &infoLog[0]);
 	}
-	if (Result == GL_FALSE) {
+	if (success == GL_FALSE) {
 		printf("GL error: %i\n", shaderId);
 		exit(1);
 	}
@@ -33,7 +40,6 @@ GLuint LoadShader::createGlProgram(const char* vertexFilename, const char* fragm
 	// ensure ifstream objects can throw exceptions:
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
 
 	char shaderDirectory[] = "../shaders/";
 	// src/shaders/

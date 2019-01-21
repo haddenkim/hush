@@ -7,7 +7,7 @@
 out vec3 FragColor;
 in vec2 TexCoords;
 
-uniform sampler2D gColor;
+uniform sampler2D rtColor;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 
@@ -39,14 +39,14 @@ void main()
 	float cum_w = 0.0;
 	vec2 step = vec2(1. / resolution, 1. / resolution); // texel step size
 
-	vec3 cval = texture(gColor, TexCoords).rgb;
+	vec3 cval = texture(rtColor, TexCoords).rgb;
 	vec3 pval = texture(gPosition, TexCoords).rgb;
 	vec3 nval = texture(gNormal, TexCoords).rgb;
 
 	for (int i = 0; i < 25; i++) {
 		vec2 uv = TexCoords + offset[i] * step * stepwidth;
 
-		vec3 ctmp = texture(gColor, uv).rgb;			// Iq			(color of q)
+		vec3 ctmp = texture(rtColor, uv).rgb;			// Iq			(color of q)
 		vec3 t = cval - ctmp;							// Ip - Iq		(color difference)
 		float dist2 = dot(t, t);						// ||Ip - Iq||	(distance squared)
 		float c_w = min(exp(-(dist2) / colorPhi), 1.0); // w(p,q)		(weight function)

@@ -6,24 +6,24 @@
 
 class Camera;
 class Scene;
-class Renderer;
-class GlRenderer;
-class PtRenderer;
+class Pipeline;
 
-enum RenderMode: int {
+enum RenderMode : int {
 	CONTINUOUS = 0,
 	ONE_FRAME = 1
 };
 
 class Viewer {
 public:
-	Viewer(int width, int height, Camera* camera, Scene* scene);
+	Viewer(int width, int height, Scene* scene, Camera* camera);
 
+	void addPipeline(Pipeline* pipeline);
 	void start();
+
+	static GLFWwindow* Window;
 
 private:
 	// window
-	static GLFWwindow* Window;
 	int m_windowWidth;
 	int m_windowHeight;
 
@@ -31,21 +31,18 @@ private:
 	RenderMode m_renderMode;
 	bool m_isPaused;
 	float m_guiTime;
-	float m_tracerTime;
-	float m_postProcessTime;
 	float m_totalTime;
 
-	void selectRenderer(int id);
-	int m_activeRendererId;
-	Renderer* m_activeRenderer;
-	GlRenderer* m_glRenderer;
-	PtRenderer* m_ptRenderer;
+	void selectPipeline(int id);
+	int m_activePipelineId;
+	Pipeline* m_activePipeline;
+	std::vector<Pipeline*> m_availablePipelines;
 
 	// gui
 	void guiMainMenu();
 	void guiMainMenuScene();
 	void guiMainMenuCamera();
-	void guiMainMenuRenderer();
+	void guiMainMenuPipeline();
 	void guiMainMenuFramebuffer();
 	void guiMainMenuStats();
 
@@ -56,6 +53,6 @@ private:
 	Scene* m_scene;
 
 	// helpers
-	void init();
+	void setupWindow();
 	float timeFrom(std::chrono::time_point<std::chrono::high_resolution_clock> startTime);
 };

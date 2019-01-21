@@ -1,7 +1,6 @@
 #include "app/viewer.h"
 #include "camera/camera.h"
-#include "renderer/ptRenderer.h"
-#include "renderer/renderer.h"
+#include "pipeline/pipeline.h"
 #include "scene/scene.h"
 #include <imgui.h>
 #include <string>
@@ -13,7 +12,7 @@ void Viewer::guiMainMenu()
 	if (ImGui::BeginMainMenuBar()) {
 		guiMainMenuScene();
 		guiMainMenuCamera();
-		guiMainMenuRenderer();
+		guiMainMenuPipeline();
 		guiMainMenuFramebuffer();
 		guiMainMenuStats();
 		ImGui::EndMainMenuBar();
@@ -50,9 +49,10 @@ void Viewer::guiMainMenuCamera()
 		ImGui::EndMenu();
 	}
 }
-void Viewer::guiMainMenuRenderer()
+
+void Viewer::guiMainMenuPipeline()
 {
-	if (ImGui::BeginMenu("Renderer")) {
+	if (ImGui::BeginMenu("Pipeline")) {
 
 		// render mode & framerate
 		const char* modes[] = { "Continuous", "One Frame" };
@@ -72,47 +72,40 @@ void Viewer::guiMainMenuRenderer()
 		ImGui::Separator();
 		ImGui::NewLine();
 
-		// Renderer
-		const char* renderers[] = { "(F1) OpenGl", "(F2) Path Tracer" };
-		if (ImGui::Combo("Renderer", &m_activeRendererId, renderers, IM_ARRAYSIZE(renderers))) {
-			selectRenderer(m_activeRendererId);
+		// Pipeline
+		const char* pipelines[] = { "(F1) OpenGl", "(F2) Path Tracer" };
+		if (ImGui::Combo("Pipeline", &m_activePipelineId, pipelines, IM_ARRAYSIZE(pipelines))) {
+			selectPipeline(m_activePipelineId);
 		}
 
 		ImGui::Separator();
 		ImGui::NewLine();
 
-		// Path tracer
-		if (m_activeRendererId == 1) {
-			m_ptRenderer->guiEdit();
-		}
+		m_activePipeline->guiEdit();
 
 		ImGui::EndMenu();
 	}
 }
+
 void Viewer::guiMainMenuFramebuffer()
 {
-	if (ImGui::BeginMenu("Framebuffer")) {
-		for (int n = 0; n < m_activeRenderer->m_framebufferTextures.size(); n++) {
-			if (m_activeRenderer->m_framebufferAllowed[n]) {
-				if (ImGui::Selectable(m_activeRenderer->m_framebufferNames[n].c_str(), m_activeRenderer->m_displayFramebuffer == n))
-					m_activeRenderer->m_displayFramebuffer = n;
+	if (ImGui::BeginMenu("Display")) {
 
-			} else {
-				ImGui::TextDisabled("%s", m_activeRenderer->m_framebufferNames[n].c_str());
-			}
-		}
+		m_activePipeline->guiFramebuffer();
 
 		ImGui::EndMenu();
 	}
 }
+
 void Viewer::guiMainMenuStats()
 {
 	static bool showStatsWindow = false;
 	if (ImGui::BeginMenu("Stats")) {
 
 		ImGui::Text("Last Frame");
-		ImGui::Text("\tTracer time: %.1f ms", m_tracerTime);
-		ImGui::Text("\tPost Process time: %.1f ms", m_postProcessTime);
+		// ImGui::Text("\tTracer time: %.1f ms", m_tracerTime);
+		// ImGui::Text("\tPost Process time: %.1f ms", m_postProcessTime);
+
 		ImGui::Text("\tGUI time: %.1f ms", m_guiTime);
 		ImGui::Text("\tTotal time: %.1f ms", m_totalTime);
 
@@ -126,8 +119,9 @@ void Viewer::guiMainMenuStats()
 		ImGui::Begin("Stats", &showStatsWindow, ImGuiWindowFlags_AlwaysAutoResize);
 
 		ImGui::Text("Last Frame");
-		ImGui::Text("\tTracer time: %.1f ms", m_tracerTime);
-		ImGui::Text("\tPost Process time: %.1f ms", m_postProcessTime);
+		// ImGui::Text("\tTracer time: %.1f ms", m_tracerTime);
+		// ImGui::Text("\tPost Process time: %.1f ms", m_postProcessTime);
+
 		ImGui::Text("\tGUI time: %.1f ms", m_guiTime);
 		ImGui::Text("\tTotal time: %.1f ms", m_totalTime);
 
@@ -171,46 +165,14 @@ void Viewer::handleKeyPress()
 		m_camera->switchMode();
 	}
 
-	/* Renderer controls */
+	/* Pipeline selection */
 	if (io.KeysDown[GLFW_KEY_SPACE] && io.KeysDownDuration[GLFW_KEY_SPACE] == 0.0f) {
 		m_isPaused = !m_isPaused;
 	}
 	if (io.KeysDown[GLFW_KEY_F1] && io.KeysDownDuration[GLFW_KEY_F1] == 0.0f) {
-		selectRenderer(0);
+		selectPipeline(0);
 	}
 	if (io.KeysDown[GLFW_KEY_F2] && io.KeysDownDuration[GLFW_KEY_F2] == 0.0f) {
-		selectRenderer(1);
-	}
-
-	/* Framebuffer display */
-	if (io.KeysDown[GLFW_KEY_0] && io.KeysDownDuration[GLFW_KEY_0] == 0.0f) {
-		m_activeRenderer->m_displayFramebuffer = 0;
-	}
-	if (io.KeysDown[GLFW_KEY_1] && io.KeysDownDuration[GLFW_KEY_1] == 0.0f) {
-		m_activeRenderer->m_displayFramebuffer = 1;
-	}
-	if (io.KeysDown[GLFW_KEY_2] && io.KeysDownDuration[GLFW_KEY_2] == 0.0f) {
-		m_activeRenderer->m_displayFramebuffer = 2;
-	}
-	if (io.KeysDown[GLFW_KEY_3] && io.KeysDownDuration[GLFW_KEY_3] == 0.0f) {
-		m_activeRenderer->m_displayFramebuffer = 3;
-	}
-	if (io.KeysDown[GLFW_KEY_4] && io.KeysDownDuration[GLFW_KEY_4] == 0.0f) {
-		m_activeRenderer->m_displayFramebuffer = 4;
-	}
-	if (io.KeysDown[GLFW_KEY_5] && io.KeysDownDuration[GLFW_KEY_5] == 0.0f) {
-		m_activeRenderer->m_displayFramebuffer = 5;
-	}
-	if (io.KeysDown[GLFW_KEY_6] && io.KeysDownDuration[GLFW_KEY_6] == 0.0f) {
-		m_activeRenderer->m_displayFramebuffer = 6;
-	}
-	if (io.KeysDown[GLFW_KEY_7] && io.KeysDownDuration[GLFW_KEY_7] == 0.0f) {
-		m_activeRenderer->m_displayFramebuffer = 7;
-	}
-	if (io.KeysDown[GLFW_KEY_8] && io.KeysDownDuration[GLFW_KEY_8] == 0.0f) {
-		m_activeRenderer->m_displayFramebuffer = 8;
-	}
-	if (io.KeysDown[GLFW_KEY_9] && io.KeysDownDuration[GLFW_KEY_9] == 0.0f) {
-		m_activeRenderer->m_displayFramebuffer = 9;
+		selectPipeline(1);
 	}
 }

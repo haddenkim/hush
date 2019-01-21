@@ -1,4 +1,5 @@
-#include "ptRenderer.h"
+#include "pathTracePass.h"
+
 #include "camera/camera.h"
 #include "interaction/surfaceInteraction.h"
 #include "light/light.h"
@@ -14,67 +15,58 @@
 #include <tbb/tbb.h>
 #include <vector>
 
+#include "pipeline/pipeline.h"
+#include "pipelineBuffer/spectrumBuffer.h"
+#include "pipelineBuffer/vec3fBuffer.h"
+
 #define TILE_SIZE 8
 #define RAY_EPSILON 1e-5
 
-PtRenderer::PtRenderer(Scene* scene, Camera* camera)
-	: Renderer(scene, camera)
-	, m_numTilesX((m_width + TILE_SIZE - 1) / TILE_SIZE)
-	, m_numTilesY((m_height + TILE_SIZE - 1) / TILE_SIZE)
-	, m_fovScale(glm::tan(camera->m_fovY / 2))
-	, m_invWidth(1 / (float)m_width)
-	, m_invHeight(1 / (float)m_height)
-	, m_atrousDenoiser(AtrousDenoiser(this))
+PathTracePass::PathTracePass(Scene* scene,
+							 Camera* camera,
+							 uint width,
+							 uint height,
+							 SpectrumBuffer* rtColorBuffer,
+							 Vec3fBuffer* positionBuffer,
+							 Vec3fBuffer* normalBuffer,
+							 SpectrumBuffer* matDiffuseBuffer)
+	: RayPass("Path Trace",
+			  RT_FULL_GI,
+			  { CAM_POSITION, CAM_DIRECTION, MESH },		  // inputs
+			  { COLOR, G_POSITION, G_NORMAL, G_MAT_DIFFUSE }) // outputs
+	, m_scene(scene)
+	, m_camera(camera)
+	, m_width(width)
+	, m_height(height)
+	, m_numTilesX((width + TILE_SIZE - 1) / TILE_SIZE)
+	, m_numTilesY((height + TILE_SIZE - 1) / TILE_SIZE)
+	, m_rtColorBuffer(rtColorBuffer)
+	, m_positionBuffer(positionBuffer)
+	, m_normalBuffer(normalBuffer)
+	, m_matDiffuseBuffer(matDiffuseBuffer)
+
 {
-	// default settings
+
+	// initial settings
 	m_samplesPerPixel = 1;
-	m_jitterPrimaryRays = true;
+	m_jitterPrimaryRays = false;
 	m_directLightStrategy = UNIFORM_ONE;
 	m_samplesPerLight = 1;
 	m_maxDepth = 1;
 	m_minContribution = 0.1f;
-	selectDenoiser(ATROUS);
-
-	// setup helpers
-	setupGBuffer();
 }
 
-void PtRenderer::setupGBuffer()
+void PathTracePass::render()
 {
-	// buffer memory
-	m_bufferSize = m_width * m_height * 3;
-	m_colorBuffer = new float[m_bufferSize];
-	m_positionBuffer = new float[m_bufferSize];
-	m_normalBuffer = new float[m_bufferSize];
-	m_diffuseBuffer = new float[m_bufferSize];
+	clearBuffers();
 
-	int gBufferCount = 4;
-	m_gBufferTex = new GLuint[gBufferCount];
-	for (size_t i = 0; i < gBufferCount; i++) {
-		m_gBufferTex[i] = setupOutputTexture();
-	}
-
-	addFrameBufferTexture(m_gBufferTex[0], "Path Tracer");
-	addFrameBufferTexture(m_gBufferTex[1], "Positions");
-	addFrameBufferTexture(m_gBufferTex[2], "Normals");
-	addFrameBufferTexture(m_gBufferTex[3], "Material - Diffuse");
-
-	// restore defaults
-	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void PtRenderer::render3d()
-{
-	clearBuffers(m_bufferChannels);
-
-	const Mat4 c2w = m_camera->m_cameraToWorld;
-
+	// render tiles in parallel
 	tbb::parallel_for(size_t(0), size_t(m_numTilesX * m_numTilesY), [&](size_t i) {
-		renderTile(i, c2w);
+		renderTile(i);
 	});
 }
 
-void PtRenderer::renderTile(const uint index, const Mat4& c2w)
+void PathTracePass::renderTile(const uint index)
 {
 	/* calculate tile dimensions and pixels */
 	const uint tileY = index / m_numTilesX;								   // tile x index
@@ -98,7 +90,7 @@ void PtRenderer::renderTile(const uint index, const Mat4& c2w)
 				// create RNG sampler
 				samplers[rh] = Sampler(x, y, s);
 				// setup primary rays
-				setupPrimaryRay(x, y, c2w, rayHits[rh], samplers[rh]);
+				setupPrimaryRay(x, y, rayHits[rh], samplers[rh]);
 				rh++;
 			}
 		}
@@ -114,10 +106,10 @@ void PtRenderer::renderTile(const uint index, const Mat4& c2w)
 
 	/* process each ray */
 	rh = 0;
-	int bufferIndex;
+	uint bufferIndex;
 
 	for (size_t y = y0; y < y1; y++) {
-		bufferIndex = (y * m_width + x0) * 3;
+		bufferIndex = (y * m_width + x0);
 
 		for (size_t x = x0; x < x1; x++) {
 			Spectrum color(0.f);
@@ -130,14 +122,16 @@ void PtRenderer::renderTile(const uint index, const Mat4& c2w)
 
 			/* pixel color is average of samples */
 			color /= (float)m_samplesPerPixel;
-			fillColorBuffer(color, bufferIndex);
 
-			bufferIndex += 3;
+			/* write to buffer */
+			m_rtColorBuffer->m_data[bufferIndex] = color;
+
+			bufferIndex++;
 		}
 	}
 }
 
-Spectrum PtRenderer::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const uint pixelSample, const uint bufferIndex)
+Spectrum PathTracePass::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const uint pixelSample, const uint bufferIndex)
 {
 	Spectrum L(0.0f);	// color
 	Spectrum beta(1.0f); // weight
@@ -159,7 +153,7 @@ Spectrum PtRenderer::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const uint
 		// store intersection data
 		SurfaceInteraction surfaceInteraction(rayHit, *m_scene);
 
-		// CODEHERE - investigate if g-buffer should be avereged across all samples or some other strategy
+		// CODEHERE - investigate if g-buffer should be averaged across all samples or some other strategy
 		/* fill g-buffer for first pixel sample */
 		if (pixelSample == 0 && bounce == 0) {
 			fillAdditionalBuffers(surfaceInteraction, bufferIndex);
@@ -212,7 +206,7 @@ Spectrum PtRenderer::renderPixel(RTCRayHit& rayHit, Sampler& sampler, const uint
 	return L;
 }
 
-Spectrum PtRenderer::uniformSampleAllLights(SurfaceInteraction& surfaceInteraction, Sampler& sampler)
+Spectrum PathTracePass::uniformSampleAllLights(SurfaceInteraction& surfaceInteraction, Sampler& sampler)
 {
 	Spectrum L(0.f);
 	for (Light* light : m_scene->m_enabledLightList) {
@@ -228,7 +222,7 @@ Spectrum PtRenderer::uniformSampleAllLights(SurfaceInteraction& surfaceInteracti
 	return L;
 }
 
-Spectrum PtRenderer::uniformSampleOneLight(SurfaceInteraction& surfaceInteraction, Sampler& sampler)
+Spectrum PathTracePass::uniformSampleOneLight(SurfaceInteraction& surfaceInteraction, Sampler& sampler)
 {
 	// early terminate if no lights
 	int numLights = m_scene->m_enabledLightList.size();
@@ -249,7 +243,7 @@ Spectrum PtRenderer::uniformSampleOneLight(SurfaceInteraction& surfaceInteractio
 		* (float)numLights;									   // pdf of choosing light source is 1/numLights, so radiance/pdf = radiance * numLights
 }
 
-Spectrum PtRenderer::estimateDirect(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
+Spectrum PathTracePass::estimateDirect(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
 {
 	Spectrum L(0.f);
 
@@ -264,7 +258,7 @@ Spectrum PtRenderer::estimateDirect(SurfaceInteraction& surfaceInteraction, cons
 	return L / (float)m_samplesPerLight;
 }
 
-Spectrum PtRenderer::sampleLight(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
+Spectrum PathTracePass::sampleLight(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
 {
 	// sample the light
 	LightSample lightSample = light.sampleLi(surfaceInteraction.m_position, sampler);
@@ -299,7 +293,7 @@ Spectrum PtRenderer::sampleLight(SurfaceInteraction& surfaceInteraction, const L
 	}
 }
 
-Spectrum PtRenderer::sampleBsdf(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
+Spectrum PathTracePass::sampleBsdf(SurfaceInteraction& surfaceInteraction, const Light& light, Sampler& sampler)
 {
 	// sample the material
 	MaterialSample matSample = surfaceInteraction.m_material->sample(surfaceInteraction, sampler);
@@ -350,119 +344,41 @@ Spectrum PtRenderer::sampleBsdf(SurfaceInteraction& surfaceInteraction, const Li
 	return matSample.m_albedo * lightRadiance * weight / matSample.m_pdf;
 }
 
-void PtRenderer::clearBuffers(int bufferChannels)
+void PathTracePass::clearBuffers()
 {
 	// clearing color buffer here is unncesseary since every value is rewritten in renderTile
 
-	/* position */
-	if ((bufferChannels & FB_POSITION) == FB_POSITION) {
-		for (size_t i = 0; i < m_bufferSize; i++) {
-			m_positionBuffer[i] = 0.f;
-		}
-	}
-
-	/* normal */
-	if ((bufferChannels & FB_NORMAL) == FB_NORMAL) {
-		for (size_t i = 0; i < m_bufferSize; i++) {
-			m_normalBuffer[i] = 0.f;
-		}
-	}
-
-	/* diffuse */
-	if ((bufferChannels & FB_DIFFUSE) == FB_DIFFUSE) {
-		for (size_t i = 0; i < m_bufferSize; i++) {
-			m_diffuseBuffer[i] = 0.f;
-		}
-	}
+	m_positionBuffer->clear();
+	m_normalBuffer->clear();
+	m_matDiffuseBuffer->clear();
 }
 
-void PtRenderer::fillColorBuffer(const Spectrum& color, const uint bufferIndex)
-{
-	/* write to buffer */
-	m_colorBuffer[bufferIndex + 0] = color.r;
-	m_colorBuffer[bufferIndex + 1] = color.g;
-	m_colorBuffer[bufferIndex + 2] = color.b;
-}
-
-void PtRenderer::fillAdditionalBuffers(const SurfaceInteraction& surfaceInteraction, const uint bufferIndex)
+void PathTracePass::fillAdditionalBuffers(const SurfaceInteraction& surfaceInteraction, const uint bufferIndex)
 {
 	/* position */
-	if ((m_bufferChannels & FB_POSITION) == FB_POSITION) {
-		m_positionBuffer[bufferIndex + 0] = surfaceInteraction.m_position.x;
-		m_positionBuffer[bufferIndex + 1] = surfaceInteraction.m_position.y;
-		m_positionBuffer[bufferIndex + 2] = surfaceInteraction.m_position.z;
-	}
+	m_positionBuffer->m_data[bufferIndex] = surfaceInteraction.m_position;
 
 	/* normal */
-	if ((m_bufferChannels & FB_NORMAL) == FB_NORMAL) {
-		m_normalBuffer[bufferIndex + 0] = surfaceInteraction.m_normalShade.x;
-		m_normalBuffer[bufferIndex + 1] = surfaceInteraction.m_normalShade.y;
-		m_normalBuffer[bufferIndex + 2] = surfaceInteraction.m_normalShade.z;
-	}
+	m_normalBuffer->m_data[bufferIndex] = surfaceInteraction.m_normalShade;
 
 	/* diffuse */
-	if ((m_bufferChannels & FB_DIFFUSE) == FB_DIFFUSE) {
-		m_diffuseBuffer[bufferIndex + 0] = surfaceInteraction.m_diffuse.r;
-		m_diffuseBuffer[bufferIndex + 1] = surfaceInteraction.m_diffuse.g;
-		m_diffuseBuffer[bufferIndex + 2] = surfaceInteraction.m_diffuse.b;
-	}
+	m_matDiffuseBuffer->m_data[bufferIndex] = surfaceInteraction.m_diffuse;
 }
 
-void PtRenderer::renderPostProcess()
-{
-
-	switch (m_denoiseStrategy) {
-	case NONE:
-		// simply buffer color next texture in pipeline
-		glBindTexture(GL_TEXTURE_2D, m_preTonemapImage);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_colorBuffer);
-		glBindTexture(GL_TEXTURE_2D, m_gBufferTex[0]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_colorBuffer);
-		break;
-
-	case ATROUS:
-		// buffer pathtracer output to openGL
-		glBindTexture(GL_TEXTURE_2D, m_gBufferTex[0]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_colorBuffer);
-		glBindTexture(GL_TEXTURE_2D, m_gBufferTex[1]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_positionBuffer);
-		glBindTexture(GL_TEXTURE_2D, m_gBufferTex[2]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_normalBuffer);
-		glBindTexture(GL_TEXTURE_2D, m_gBufferTex[3]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_FLOAT, m_diffuseBuffer);
-
-		m_atrousDenoiser.render();
-
-		break;
-
-	default:
-		assert(!"The default case of switch was reached.");
-		break;
-	}
-
-	renderTonemap();
-}
-
-void PtRenderer::setupPrimaryRay(const uint x, const uint y, const Mat4& c2w, RTCRayHit& rayHit, Sampler& sampler)
+void PathTracePass::setupPrimaryRay(const uint x, const uint y, RTCRayHit& rayHit, Sampler& sampler)
 {
 	// ray origin
-	rayHit.ray.org_x = c2w[3][0];
-	rayHit.ray.org_y = c2w[3][1];
-	rayHit.ray.org_z = c2w[3][2];
+	rayHit.ray.org_x = m_camera->m_position.x;
+	rayHit.ray.org_y = m_camera->m_position.y;
+	rayHit.ray.org_z = m_camera->m_position.z;
 
 	// CODEHERE - sample ray direction about the pixel square
 	// for now, x and y of each sample is fixed and identical
 
-	// ray direction
-	float Px = (2 * (((float)x + 0.5) * m_invWidth) - 1) * m_fovScale;
-	float Py = (2 * (((float)y + 0.5) * m_invHeight) - 1) * m_fovScale;
-
-	Vec3f camDir = Vec3f(Px, Py, -1);
-	glm::vec4 dir = glm::normalize(c2w * glm::vec4(camDir, 0.0f));
-
-	rayHit.ray.dir_x = dir.x;
-	rayHit.ray.dir_y = dir.y;
-	rayHit.ray.dir_z = dir.z;
+	int bufferIndex = ((y * m_width) + x);
+	rayHit.ray.dir_x = m_camera->m_directionBuffer[bufferIndex].x;
+	rayHit.ray.dir_y = m_camera->m_directionBuffer[bufferIndex].y;
+	rayHit.ray.dir_z = m_camera->m_directionBuffer[bufferIndex].z;
 
 	// common
 	rayHit.ray.tnear = 0;
@@ -473,7 +389,7 @@ void PtRenderer::setupPrimaryRay(const uint x, const uint y, const Mat4& c2w, RT
 	rayHit.hit.primID = RTC_INVALID_GEOMETRY_ID;
 }
 
-void PtRenderer::setupIntersectRay(const Vec3f& origin, const Vec3f& direction, RTCRayHit& rayHit)
+void PathTracePass::setupIntersectRay(const Vec3f& origin, const Vec3f& direction, RTCRayHit& rayHit)
 {
 	// ray origin
 	rayHit.ray.org_x = origin.x;
@@ -495,7 +411,7 @@ void PtRenderer::setupIntersectRay(const Vec3f& origin, const Vec3f& direction, 
 	rayHit.hit.primID = RTC_INVALID_GEOMETRY_ID;
 }
 
-void PtRenderer::setupOcclusionRay(const Vec3f& origin, const Vec3f& direction, const float tFar, RTCRay& pRay)
+void PathTracePass::setupOcclusionRay(const Vec3f& origin, const Vec3f& direction, const float tFar, RTCRay& pRay)
 {
 	// ray origin
 	pRay.org_x = origin.x;
@@ -513,7 +429,7 @@ void PtRenderer::setupOcclusionRay(const Vec3f& origin, const Vec3f& direction, 
 	pRay.mask = -1;
 }
 
-bool PtRenderer::testNotOcclusion(const Vec3f& origin, const Vec3f& direction, const float tFar)
+bool PathTracePass::testNotOcclusion(const Vec3f& origin, const Vec3f& direction, const float tFar)
 {
 	RTCRay shadowRay;
 	RTCIntersectContext context;
@@ -521,28 +437,4 @@ bool PtRenderer::testNotOcclusion(const Vec3f& origin, const Vec3f& direction, c
 	setupOcclusionRay(origin, direction, tFar, shadowRay);
 	rtcOccluded1(m_scene->m_embScene, &context, &shadowRay);
 	return shadowRay.tfar > 0;
-}
-
-void PtRenderer::selectDenoiser(DenoiseStrategy strategy)
-{
-	m_denoiseStrategy = strategy;
-
-	/* setup buffers needed for denoiser */
-	switch (m_denoiseStrategy) {
-	case NONE:
-		m_bufferChannels = FB_COLOR;
-		m_framebufferAllowed[1] = true;
-		m_framebufferAllowed[2] = m_framebufferAllowed[3] = m_framebufferAllowed[4] = false;
-
-		break;
-
-	case ATROUS:
-		m_bufferChannels = FB_COLOR | FB_POSITION | FB_NORMAL | FB_DIFFUSE;
-		m_framebufferAllowed[1] = m_framebufferAllowed[2] = m_framebufferAllowed[3] = m_framebufferAllowed[4] = true;
-		break;
-
-	default:
-		assert(!"The default case of switch was reached.");
-		break;
-	}
 }

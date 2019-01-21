@@ -10,11 +10,11 @@ struct Material {
 	sampler2D texDiffuse;
 };
 
-layout(location = 0) out vec4 gSpecular;
-layout(location = 1) out vec3 gDiffuse;
-layout(location = 2) out vec3 gPosition;
-layout(location = 3) out vec3 gNormal;
-layout(location = 4) out vec3 gAmbient;
+layout(location = 0) out vec3 gPosition;
+layout(location = 1) out vec3 gNormal;
+layout(location = 2) out vec3 gAmbient;
+layout(location = 3) out vec3 gDiffuse;
+layout(location = 4) out vec4 gSpecular;
 
 in vec3 position;
 in vec3 normal;

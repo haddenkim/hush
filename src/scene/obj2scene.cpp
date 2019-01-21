@@ -276,6 +276,47 @@ void Obj2scene::CalculateCenterAndBounds(Mesh* mesh)
 
 void Obj2scene::CreateMaterial(Scene* scene, const tinyobj::material_t& tinyMat, std::string directory, std::map<const std::string, Texture*>* textures)
 {
+	/*
+	// CODEHERE - replace with typesafe enum as more models added
+	int brdfModel = 0;
+	// 0 = lambertian
+	// 1 = phong
+
+	// determine material subtype from MTL illum model http://paulbourke.net/dataformats/mtl/
+	switch (tinyMat.illum) {
+	case 0: // constant color. "upgrade" to lambertian
+	case 1: // lambertian
+		brdfModel = 0;
+		break;
+
+	case 2: // blinn-phong
+	case 3: // blinn-phong with reflection ray tracing
+	case 8: // 3 without ray tracing. "upgrade" to phong
+		if (isSpecular) {
+			brdfModel = 1;
+		} else {
+			brdfModel = 0; // "downgrade" to lambertian model
+		}
+		break;
+
+	case 5: // fresnel reflection
+		break;
+
+	case 6: // 3 with refraction
+		break;
+
+	case 7: // fresnel reflection and transmission
+		break;
+
+	default:
+		assert(!"Unsupported material. ");
+		// case 4: // glass
+		// case 9: // glass without ray tracing
+		// case 10: // shadow on invisible surface
+		break;
+	}
+	*/
+
 	// determine type of material
 	bool isDiffuse = tinyMat.diffuse[0] != 0.f || tinyMat.diffuse[1] != 0.f || tinyMat.diffuse[2] != 0.f;
 	bool isSpecular = tinyMat.specular[0] != 0.f || tinyMat.specular[1] != 0.f || tinyMat.specular[2] != 0.f;
@@ -284,7 +325,7 @@ void Obj2scene::CreateMaterial(Scene* scene, const tinyobj::material_t& tinyMat,
 
 	Material* material;
 
-	if (isDiffuse && !isSpecular) {
+	if (isDiffuse && !isSpecular && !isTransmissive) {
 		// Lambertian material
 		Texture* diffuseMap = CreateTexture(scene, directory, tinyMat.diffuse_texname, textures);
 

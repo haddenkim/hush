@@ -1,0 +1,11 @@
+#pragma once
+
+enum RenderPassType {
+	RASTER_GBUFFER,
+	RT_FULL_GI,
+	SS_DIRECT_LIGHT,
+	SS_AMBIENT,
+	DENOISE_ATROUS,
+	PP_TONE_MAP,
+	TO_SCREEN
+};

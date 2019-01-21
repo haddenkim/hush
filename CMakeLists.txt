@@ -13,6 +13,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # program executable
 add_executable(${PROJECT_NAME} "src/main.cpp")
 
+# c warning level
+if(MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+else(MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
+endif(MSVC)
+
 # source lib
 file(GLOB_RECURSE SOURCES 
 	"src/*.cpp")

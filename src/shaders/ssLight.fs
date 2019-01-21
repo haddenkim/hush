@@ -8,10 +8,11 @@ out vec3 FragColor;
 
 in vec2 TexCoords;
 
-uniform sampler2D gSpecular;
-uniform sampler2D gDiffuse;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
+uniform sampler2D gDiffuse;
+uniform sampler2D gSpecular;
+
 
 uniform Light light;
 uniform vec3 cameraPosition;

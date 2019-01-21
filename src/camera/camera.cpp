@@ -2,31 +2,34 @@
 #include "scene/scene.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+#include <tbb/tbb.h>
 
 #define MAX_ZOOM 100
 #define MIN_ZOOM 0.1
 
 Camera::Camera(int width, int height, float fovY, Scene* scene)
-	: m_width(width)
-	, m_height(height)
-	, m_fovY(fovY)
-	, m_mode(Orbit)
-	, m_scene(scene)
+	: Camera(width,
+			 height,
+			 scene->m_center + (scene->m_maxBounds - scene->m_center) * 3.0f,
+			 scene->m_center,
+			 Vec3f(0.f, 1.f, 0.f),
+			 fovY,
+			 scene)
 {
-	m_projection = glm::perspective(fovY, (float)width / (float)height, 0.01f, 1000.0f);
-
-	setBase(m_scene->m_center + (m_scene->m_maxBounds - m_scene->m_center) * 3.0f,
-			m_scene->m_center,
-			Vec3f(0.f, 1.f, 0.f));
 }
 
 Camera::Camera(int width, int height, Point3f position, Point3f center, Vec3f up, float fovY, Scene* scene)
 	: m_width(width)
 	, m_height(height)
 	, m_fovY(fovY)
+	, m_invWidth(1 / (float)m_width)
+	, m_invHeight(1 / (float)m_height)
+	, m_fovScale(glm::tan(fovY / 2))
 	, m_mode(Orbit)
 	, m_scene(scene)
 {
+	m_directionBuffer = std::vector<Vec3f>(m_width * m_height, Vec3f());
+
 	// CODEHERE - determine a reasonable zFar
 	m_projection = glm::perspective(fovY, (float)width / (float)height, 0.01f, 1000.0f);
 
@@ -226,6 +229,8 @@ void Camera::updateMatrices()
 	auto m_view = glm::lookAt(m_position, m_center, m_up);
 	m_cameraToWorld = glm::inverse(m_view);
 	m_viewProjection = m_projection * m_view;
+
+	updateDirectionBuffer();
 }
 
 Mat4 Camera::buildRotationMatrix(Orientation orientation, float speed)
@@ -267,4 +272,21 @@ Mat4 Camera::buildRotationMatrix(Orientation orientation, float speed)
 	}
 
 	return glm::rotate(angleRotation, axisRotation);
+}
+
+void Camera::updateDirectionBuffer()
+{
+	tbb::parallel_for(size_t(0), size_t(m_height), [&](size_t y) {
+		for (int x = 0; x < m_height; x++) {
+			int bufferIndex = ((y * m_width) + x);
+
+			float Px = (2 * (((float)x + 0.5) * m_invWidth) - 1) * m_fovScale;
+			float Py = (2 * (((float)y + 0.5) * m_invHeight) - 1) * m_fovScale;
+
+			glm::vec3 camDir = glm::vec3(Px, Py, -1);
+			
+			// transform to world space and store
+			m_directionBuffer[bufferIndex] = glm::vec3(glm::normalize(m_cameraToWorld * glm::vec4(camDir, 0.0f)));
+		}
+	});
 }

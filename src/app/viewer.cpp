@@ -4,33 +4,27 @@
 // clang-format on
 
 #include "viewer.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include "gui/imgui/imgui_impl_glfw.h"
 #include "gui/imgui/imgui_impl_opengl3.h"
-
-#include "renderer/glRenderer.h"
-#include "renderer/ptRenderer.h"
+#include "pipeline/pipeline.h"
+#include <cassert>
 
 // window properties
 GLFWwindow* Viewer::Window;
 
-Viewer::Viewer(int width, int height, Camera* camera, Scene* scene)
+Viewer::Viewer(int width, int height, Scene* scene, Camera* camera)
 	: m_windowWidth(width)
 	, m_windowHeight(height)
-	, m_camera(camera)
 	, m_scene(scene)
+	, m_camera(camera)
 {
-	init();
+	setupWindow();
 
-	m_glRenderer = new GlRenderer(m_scene, m_camera); // 0
-	m_ptRenderer = new PtRenderer(m_scene, m_camera); // 1
-
+	// initial settings
 	m_renderMode = CONTINUOUS;
-	selectRenderer(0);
 }
 
-void Viewer::init()
+void Viewer::setupWindow()
 {
 	// glfw setup
 	glfwInit();
@@ -68,26 +62,23 @@ void Viewer::init()
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 }
 
-void Viewer::selectRenderer(int id)
+void Viewer::addPipeline(Pipeline* pipeline)
 {
-	switch (id) {
-	case 0:
-		m_activeRendererId = id;
-		m_activeRenderer = m_glRenderer;
-		break;
+	m_availablePipelines.push_back(pipeline);
+}
 
-	case 1:
-		m_activeRendererId = id;
-		m_activeRenderer = m_ptRenderer;
-		break;
+void Viewer::selectPipeline(int id)
+{
+	assert(id < m_availablePipelines.size());
 
-	default:
-		break;
-	}
+	m_activePipeline = m_availablePipelines[id];
+	m_activePipelineId = id;
 }
 
 void Viewer::start()
 {
+	selectPipeline(0);
+
 	// Main loop
 	while (!glfwWindowShouldClose(Window)) {
 		/* timer */
@@ -101,33 +92,18 @@ void Viewer::start()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// set viewport to render dimensions, NOT window dimensions
-		glViewport(0, 0, m_activeRenderer->m_width, m_activeRenderer->m_height);
+		glViewport(0, 0, m_activePipeline->m_width, m_activePipeline->m_height);
 
 		/* render scene */
 		if (!m_isPaused) {
 			timeThisFrame = true;
 
-			auto startRender3d = std::chrono::high_resolution_clock::now();
-			m_activeRenderer->render3d();
-			tracerTime = timeFrom(startRender3d);
-
-			auto startRenderPP = std::chrono::high_resolution_clock::now();
-			m_activeRenderer->renderPostProcess();
-			postProcessTime = timeFrom(startRenderPP);
+			m_activePipeline->render();
 
 			if (m_renderMode == ONE_FRAME) {
 				m_isPaused = true;
 			}
 		}
-
-		/* render selected framebuffer to final window's framebuffer */
-		// collect window size - for resizing and mac retina
-		int viewPortW, viewPortH;
-		glfwGetFramebufferSize(Window, &viewPortW, &viewPortH);
-		int viewPortX = (viewPortW - viewPortH) / 2;
-		glViewport(viewPortX, 0, viewPortH, viewPortH);
-		// render
-		m_activeRenderer->renderFramebuffer();
 
 		/* GUI */
 		// Poll and handle events (inputs, window resize, etc.)
@@ -151,8 +127,6 @@ void Viewer::start()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		if (timeThisFrame) {
-			m_tracerTime = tracerTime;
-			m_postProcessTime = postProcessTime;
 			m_guiTime = timeFrom(startGUI);
 			m_totalTime = timeFrom(startTime);
 		}
@@ -172,5 +146,5 @@ void Viewer::start()
 float Viewer::timeFrom(std::chrono::time_point<std::chrono::high_resolution_clock> startTime)
 {
 	auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - startTime).count();
-	return (float) microseconds * 0.001f;
+	return (float)microseconds * 0.001f;
 }
