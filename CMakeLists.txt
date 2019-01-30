@@ -9,7 +9,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-
+## Source
 # program executable
 add_executable(${PROJECT_NAME} "src/main.cpp")
 
@@ -27,13 +27,6 @@ add_library(hush_core STATIC ${SOURCES})
 target_include_directories(hush_core PUBLIC src)
 target_link_libraries(${PROJECT_NAME} hush_core)
 
-# message(STATUS "foreach srcFile.............")
-# foreach(srcFile ${SOURCES})
-# 	message(STATUS "file : ${srcFile}")
-
-# endforeach(srcFile ${SOURCES})
-
-
 # shader files
 set(SHADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders")
 file(GLOB_RECURSE SHADERS RELATIVE ${SHADER_DIR}
@@ -48,56 +41,54 @@ foreach(shaderFile ${SHADERS})
 endforeach(shaderFile ${SHADERS})
 
 
-## libraries
-# GLM
-FIND_PACKAGE(GLM REQUIRED)
-INCLUDE_DIRECTORIES(hush_core ${GLM_INCLUDE_DIR})
-
-# GLFW
-FIND_PACKAGE(GLFW3 REQUIRED)
-INCLUDE_DIRECTORIES(${GLFW3_INCLUDE_DIRS})
-# target_link_libraries(hush_core ${GLFW3_STATIC_LIBRARIES})
-target_compile_definitions(hush_core PUBLIC GLFW_INCLUDE_NONE) # GLAD loads gl headers
-target_link_libraries(hush_core glfw)
-
-# GLAD
-set(GLAD_DIR "lib/glad")
-add_library("glad" "${GLAD_DIR}/src/glad.c")
-target_include_directories("glad" PUBLIC "${GLAD_DIR}/include")
-target_include_directories(hush_core PUBLIC "${GLAD_DIR}/include")
-target_link_libraries(hush_core "glad")
-
+## Included Libraries
 # TINYOBJ
 set (TINYOBJ_DIR "lib/tiny_obj_loader")
-add_library("tinyobj" "${TINYOBJ_DIR}/tiny_obj_loader.cc")
-target_include_directories("tinyobj" PUBLIC "${TINYOBJ_DIR}")
-target_include_directories(hush_core PUBLIC "${TINYOBJ_DIR}")
-target_link_libraries(hush_core "tinyobj")
+add_library(TINYOBJ "${TINYOBJ_DIR}/tiny_obj_loader.cc")
+target_include_directories(TINYOBJ PUBLIC "${TINYOBJ_DIR}")
+target_link_libraries(hush_core TINYOBJ)
 
-# STB IMAGE
+# STB IMAGE (header only)
 set (STB_DIR "lib/stb")
 target_include_directories(hush_core PUBLIC "${STB_DIR}")
 
 # IMGUI
 set (IMGUI_DIR "lib/imgui-1.66b")
-add_library(ImGui 	"${IMGUI_DIR}/imgui.cpp"
+add_library(IMGUI 	"${IMGUI_DIR}/imgui.cpp"
 					"${IMGUI_DIR}/imgui_demo.cpp"
 					"${IMGUI_DIR}/imgui_draw.cpp"
 					"${IMGUI_DIR}/imgui_widgets.cpp"
 					# "${IMGUI_DIR}/imgui_impl_glfw.cpp"
 					# "${IMGUI_DIR}/imgui_impl_opengl3.cpp"
 )
-target_include_directories(ImGui PUBLIC "${IMGUI_DIR}")
-target_include_directories(hush_core PUBLIC "${IMGUI_DIR}")
+target_include_directories(IMGUI PUBLIC "${IMGUI_DIR}")
 target_compile_definitions(hush_core PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLAD)
-target_link_libraries(hush_core ImGui)
+target_link_libraries(hush_core IMGUI)
+
+
+## External Libraries
+# GLM
+find_package(GLM REQUIRED)
+target_include_directories(hush_core PUBLIC ${GLM_INCLUDE_DIR})
+
+# GLFW
+find_package(GLFW3 REQUIRED)
+target_include_directories(hush_core PUBLIC ${GLFW3_INCLUDE_DIRS})
+target_compile_definitions(hush_core PUBLIC GLFW_INCLUDE_NONE) # GLAD loads gl headers
+target_link_libraries(hush_core GLFW)
+
+# GLAD
+find_package(GLAD REQUIRED)
+target_include_directories(hush_core PUBLIC ${GLAD_INCLUDE_DIRS})
+target_link_libraries(hush_core GLAD)
 
 # Intel TBB
-FIND_PACKAGE(tbb REQUIRED) # tbb needed to be lowercase
-INCLUDE_DIRECTORIES(hush_core ${TBB_INCLUDE_DIRS})
-target_link_libraries(hush_core tbb)
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)	# needed due to tbb-homebrew bug https://github.com/Homebrew/homebrew-core/pull/36175
+find_package(TBB REQUIRED) 
+target_include_directories(hush_core PUBLIC ${TBB_INCLUDE_DIRS})
+target_link_libraries(hush_core ${TBB_IMPORTED_TARGETS})
 
 # Embree
-find_package(embree 3.0 REQUIRED)
-INCLUDE_DIRECTORIES(${EMBREE_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(hush_core ${EMBREE_LIBRARIES})
+find_package(EMBREE 3.0 REQUIRED)
+target_include_directories(hush_core PUBLIC ${EMBREE_INCLUDE_DIRS})
+target_link_libraries(hush_core ${EMBREE_LIBRARIES})
