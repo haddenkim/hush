@@ -51,24 +51,23 @@ The primary goal this project is to learn and implement path tracing and denoisi
 
 ## Compiling
 Dependencies
-- GLAD - I'm not sure how GLAD works. You may need to generate GLAD files and replace the included files in /lib/glad
+- GLAD
 - GLM
 - GLFW3
 - Threading Building Blocks (TBB)
 - Embree
 
-### MacOS
+### MacOS & Linux
 ```
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
+I tested compiling with GCC 8.2 and Clang 9.1 on macOS High Sierra and GCC 7.3 on Ubuntu 18.
 
-### Windows & Linux
+### Windows
 Untested. 
-
-I tested compiling with GCU 8.2 and Clang 9.1 on MacOS, so I hope this runs on Linux, but I no idea for Windows.
 
 ## Usage
 From the binary directory,
