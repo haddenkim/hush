@@ -68,19 +68,19 @@ target_link_libraries(hush_core IMGUI)
 
 ## External Libraries
 # GLM
-find_package(GLM REQUIRED)
-target_include_directories(hush_core PUBLIC ${GLM_INCLUDE_DIR})
+find_package(glm REQUIRED)
+target_include_directories(hush_core PUBLIC ${GLM_INCLUDE_DIRS})
 
 # GLFW
-find_package(GLFW3 REQUIRED)
+find_package(glfw3 REQUIRED)
 target_include_directories(hush_core PUBLIC ${GLFW3_INCLUDE_DIRS})
 target_compile_definitions(hush_core PUBLIC GLFW_INCLUDE_NONE) # GLAD loads gl headers
-target_link_libraries(hush_core GLFW)
+target_link_libraries(hush_core glfw ${GLFW_LIBRARIES})
 
 # GLAD
-find_package(GLAD REQUIRED)
+find_package(glad REQUIRED)
 target_include_directories(hush_core PUBLIC ${GLAD_INCLUDE_DIRS})
-target_link_libraries(hush_core GLAD)
+target_link_libraries(hush_core glad ${GLAD_LIBRARIES} -ldl) # linux glad needed -ldl linked
 
 # Intel TBB
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)	# needed due to tbb-homebrew bug https://github.com/Homebrew/homebrew-core/pull/36175

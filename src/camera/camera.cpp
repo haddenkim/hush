@@ -1,5 +1,7 @@
 #include "camera.h"
 #include "scene/scene.h"
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 #include <tbb/tbb.h>
