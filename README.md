@@ -7,7 +7,7 @@ Hush also provides a GUI. Hush can run-time modify rendering settings to further
 
 The primary goal this project is to learn and implement path tracing and denoising concepts. Though the objective is still interctive (10 fps) framerates, the implementation approach trades performance for GUI features and ease of understanding.
 
-## TODO / Features
+## Features
 * Rendering Strategies
   * Rasterization with OpenGL (Bare-bones deferred shading: no shadows, only point lights, phong shading)
   * CPU Path Tracing with GPU denoising
