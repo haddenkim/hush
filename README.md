@@ -9,45 +9,27 @@ The primary goal this project is to learn and implement path tracing and denoisi
 
 ## TODO / Features
 * Rendering Strategies
-  * [x] Rasterization with OpenGL (Bare-bones deferred shading: no shadows, only point lights, phong shading)
-  * [x] CPU Path Tracing with GPU denoising
-  * [ ] GPU Path Tracing with GPU denoising
+  * Rasterization with OpenGL (Bare-bones deferred shading: no shadows, only point lights, phong shading)
+  * CPU Path Tracing with GPU denoising
   
 * Denoising Strategies
-  * [x] [Edge-Avoiding A-Trous Wavelet Transform](https://jo.dreggn.org/home/2010_atrous.pdf)
-  * [ ] [Mara, McGuire, Bitterli, Jarosz](https://cs.dartmouth.edu/wjarosz/publications/mara17towards.html)
-  * [ ] [Spatiotemporal Variance-Guided Filtering](https://cg.ivd.kit.edu/svgf.php)
-  
+  * [Edge-Avoiding A-Trous Wavelet Transform](https://jo.dreggn.org/home/2010_atrous.pdf)
+
 * Pipeline GUI
   * [x] Selectable output buffer to display
-  * [ ] Pipeline flow graph
-  * [ ] Framerate with per-pass details
 
 * Scene
-  * [x] Load obj scene files
-  * [x] GUI Enable / Disable mesh
-  * [ ] GUI Add / Edit / Disable lights
-  * [ ] GUI Edit material properties and BSDF model
-  
+  * Load obj scene files
+  * GUI Enable / Disable mesh
+
 * Lights
   * [x] Point
-  * [ ] Directional
   * [x] Area from emissive mesh geometry
-  * [ ] Environment Map
-  * [ ] Default lighting for scenes without emissive geometry
-
+  
 * Materials / BSDF models
   * [x] Lambertian
   * [x] [Glossy Phong](http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf)
-  * [ ] Transmissive
   * [x] Diffuse Textures
-  * [ ] Bump Map
-  
-* Other
-  * [ ] Alternative sampling strategies (ex. Halton, Sobol)
-  * [ ] Variable rendering resolution (currently locked 512x512)
-  * [ ] Benchmarking (some sort of image quality metric. maybe compare to a reference image)
-  * [ ] Asynchronous rendering (continuously render framebuffer and not block GUI)
 
 ## Compiling
 Dependencies
