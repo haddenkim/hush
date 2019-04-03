@@ -16,20 +16,20 @@ The primary goal this project is to learn and implement path tracing and denoisi
   * [Edge-Avoiding A-Trous Wavelet Transform](https://jo.dreggn.org/home/2010_atrous.pdf)
 
 * Pipeline GUI
-  * [x] Selectable output buffer to display
+  * Selectable output buffer to display
 
 * Scene
   * Load obj scene files
   * GUI Enable / Disable mesh
 
 * Lights
-  * [x] Point
-  * [x] Area from emissive mesh geometry
+  * Point
+  * Area from emissive mesh geometry
   
 * Materials / BSDF models
-  * [x] Lambertian
-  * [x] [Glossy Phong](http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf)
-  * [x] Diffuse Textures
+  * Lambertian
+  * [Glossy Phong](http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf)
+  * Diffuse Textures
 
 ## Compiling
 Dependencies
